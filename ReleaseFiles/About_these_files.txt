@@ -1,0 +1,4 @@
+The BepInEx folder here is added to the release zip, on top of BepInEx 5.4.21 and the built plugin and settings tool.
+
+BepInEx\config\BepInEx.cfg : the BepInEx settings the plugin was tested with
+(HideManagerGameObject = true like DemulShooter's Unity packages, log written to BepInEx\LogOutput.log).

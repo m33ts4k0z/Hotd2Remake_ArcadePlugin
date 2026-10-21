@@ -89,6 +89,8 @@ jobs:
           Expand-Archive "$env:RUNNER_TEMP/bepinex.zip" package
           $version = (Get-Item package/BepInEx/core/BepInEx.dll).VersionInfo.FileVersion
           if ($version -ne '5.4.21.0') { Write-Output "::error::Unexpected BepInEx version $version"; exit 1 }
+          # BepInEx settings the plugin was tested with (HideManagerGameObject...)
+          Copy-Item ReleaseFiles/BepInEx package -Recurse -Force
           New-Item -ItemType Directory package/BepInEx/plugins -Force | Out-Null
           Copy-Item Hotd2Remake_ArcadePlugin/bin/Release/Hotd2Remake_ArcadePlugin.dll, Hotd2Remake_ArcadePlugin/Hotd2Remake_ArcadePlugin.ini package/BepInEx/plugins
           Copy-Item Hotd2Remake_ArcadeConfig/bin/Release/Hotd2Remake_ArcadeConfig.exe, README.md package
