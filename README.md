@@ -5,17 +5,6 @@ This BepInEx plugin turns the home game into an arcade cabinet experience: coins
 
 It is based on [argonlefou](https://github.com/argonlefou)'s [House of the Dead Remake Arcade Plugin](https://github.com/argonlefou/HotdRemake_ArcadePlugin) for the first game: same design, and some of its code (texts and their translations, credits handling).
 
-## Status
-Built in stages, all done:
-
-| Stage | Content | Status |
-|---|---|---|
-| 1 | Coins, credits, free play, START to play, join, continue and skip cutscenes. No in-game menu or controller hints, Esc quits | ✅ |
-| 2 | Attract mode: title video loop with the game logo, credits text at the bottom center. Arcade presentation: `LOADING...` instead of the loading screen tips, mouse cursor always hidden, no achievements (no popups during the game) | ✅ |
-| 3 | Arcade continue countdown (9 to 0 per player, GAME OVER per player) tied to credits. Arcade HUD: no score and no weapon name during the game, like the original arcade | ✅ |
-| 4 | Name entry and high scores, rankings in the attract loop. Chapter results and end of game screens validated with START | ✅ |
-| 5 | Settings tool like argonlefou's `ArcadeMod_Config` (video, sound, language, difficulty, life torches...), START lamps and credits outputs for DemulShooter | ✅ |
-
 ## Features
 - **Coins**: `5` / `6` add a credit (common credits pool, up to 99).
 - **Attract mode**: the title screen loops the game's videos, starting with the main one and the game logo, like argonlefou's plugin. It shows `INSERT COIN(S)` / `PRESS START` with the credits, or `FREEPLAY`, at the bottom center of the screen. START starts a new game straight away, skipping all menus. The other player can join with START at any time.
