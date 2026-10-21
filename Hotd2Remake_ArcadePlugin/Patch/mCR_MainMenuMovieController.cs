@@ -67,8 +67,8 @@ namespace Hotd2Remake_ArcadePlugin
                         Hotd2r_ArcadePlugin.GameFontMaterial = Text.fontSharedMaterial;
                     }
                     Text.text = Hotd2r_ArcadePlugin.GetScreenPlayerString(Hotd2r_ArcadePlugin.Configurator.CreditsToStart);
-                    //The ranking has its own text
-                    Text.alpha = ArcadeRanking.Instance != null && ArcadeRanking.Instance.IsAttractRankingActive ? 0f : 1f;
+                    //The ranking has its own text (the game is fading this one in and out with a tween, so it is disabled instead)
+                    Text.enabled = ArcadeRanking.Instance == null || !ArcadeRanking.Instance.IsAttractRankingActive;
                 }
 
                 return !Hotd2r_ArcadePlugin.Configurator.DisableMainMenu;

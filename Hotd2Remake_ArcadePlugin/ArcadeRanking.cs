@@ -34,6 +34,12 @@ namespace Hotd2Remake_ArcadePlugin
             "Y", "Z", ".", "-", "!", "?", KEY_DELETE, KEY_END
         };
         private const int KEYS_PER_ROW = 8;
+
+        //Like an arcade cabinet (and argonlefou's plugin, which is adding one entry) : the ranking is not empty the first time
+        private static readonly string[] DEFAULT_RANKING_NAMES = new string[] { "JAMES", "GARY", "AMY", "HARRY", "ROGAN", "GOLDMAN", "G", "SOPHIE", "CURIEN", "AMS" };
+        private const int DEFAULT_RANKING_BEST_SCORE = 50000;
+        private const int DEFAULT_RANKING_SCORE_STEP = 5000;
+        private bool _IsDefaultRankingChecked = false;
         private static readonly Vector2 KEY_SIZE = new Vector2(130f, 110f);
         private const float KEY_SPACING = 20f;
 
@@ -168,6 +174,12 @@ namespace Hotd2Remake_ArcadePlugin
 
         private void Update()
         {
+            if (!_IsDefaultRankingChecked && MP_SaveDataHandler.IsReady && Hotd2r_ArcadePlugin.IsOnTitleScreen())
+            {
+                _IsDefaultRankingChecked = true;
+                addDefaultRanking();
+            }
+
             switch (_State)
             {
                 case State.NameEntry:
@@ -310,6 +322,25 @@ namespace Hotd2Remake_ArcadePlugin
             _State = State.None;
             if (_Canvas != null)
                 _Canvas.enabled = false;
+        }
+
+        /// <summary>
+        /// Default top 10 when the leaderboard is empty (50000 to 5000 points).
+        /// Only in the arcade save of the game folder : the home save is never modified
+        /// </summary>
+        private void addDefaultRanking()
+        {
+            Leaderboard Board = getLeaderboard();
+            if (Board == null || Board.BestScore > 0f || !Hotd2r_ArcadePlugin.Configurator.SaveInGameFolder)
+                return;
+
+            for (int i = 0; i < DEFAULT_RANKING_NAMES.Length; i++)
+            {
+                int Score = DEFAULT_RANKING_BEST_SCORE - i * DEFAULT_RANKING_SCORE_STEP;
+                MP_SaveDataHandler.Leaderboards.TryToSavePlayerResults(Hotd2r_ArcadePlugin.Configurator.Mode, Hotd2r_ArcadePlugin.Configurator.GameScoreMode, Score, DEFAULT_RANKING_NAMES[i], Score, 0);
+            }
+            MP_SaveLoad.Save(this, false, null);
+            Hotd2r_ArcadePlugin.MyLogger.LogMessage("ArcadeRanking.addDefaultRanking() => Empty ranking, default top 10 added");
         }
 
         private static Leaderboard getLeaderboard()
