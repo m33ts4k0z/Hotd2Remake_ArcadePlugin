@@ -22,7 +22,7 @@ Work in progress, built in stages:
 - **Arcade presentation**: `LOADING...` instead of the gameplay tips on the loading screens, mouse cursor always hidden, no achievements (and no achievement popups during the game).
 - **Credits**: starting/joining costs `CREDITS_TO_START`, a continue costs `CREDITS_TO_CONTINUE`. They replace the game's own continue tokens. The death screen shows the credits and only offers to continue when there are enough.
 - **No credits left**: the game's own 10 s countdown runs, then it's game over and back to the title screen.
-- **START** also validates the READY screen at the beginning of each chapter, and holding it skips cutscenes ("HOLD START TO SKIP!").
+- **No READY screen**: like argonlefou's plugin, each chapter starts straight after its loading screen. Holding START skips cutscenes ("HOLD START TO SKIP!").
 - **Like an arcade cabinet** (and argonlefou's plugin): no in-game pause menu, no controller hints (keyboard/gamepad icons) in menus and on the death screen, no pause when the game window loses the focus. `Esc` quits the game.
 - Game settings (graphics, sound, language...) are not available in game. They are taken from the save file: set `DISABLE_MAIN_MENU=0` to reach the game's own Options menu from the title screen if needed. A settings tool like argonlefou's `ArcadeMod_Config` is planned for stage 5.
 - **Separate save file** in the game folder (`NVRAM\saveData.sav`), so that the arcade games don't change the home save. On first run, the home save is copied there to keep the settings and unlocked items.

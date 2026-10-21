@@ -52,9 +52,6 @@ namespace Hotd2Remake_ArcadePlugin
         private static AccessTools.FieldRef<CR_MainMenuMovieController, CR_SimplePressAnyKeyDisplay> _TitlePressAnyKey = AccessTools.FieldRefAccess<CR_MainMenuMovieController, CR_SimplePressAnyKeyDisplay>("simplePressAnyKey");
         private static AccessTools.FieldRef<CR_MainMenuMovieController, CR_MainMenu> _TitleMainMenu = AccessTools.FieldRefAccess<CR_MainMenuMovieController, CR_MainMenu>("mainMenu");
 
-        //Ready check panel singleton is private in the game
-        private static FieldInfo _ReadyCheckPanelInstance = AccessTools.Field(typeof(CR_ReadyCheckPanel), "instance");
-
         //Game's main font, saved from the title screen text to be used on our own texts
         public static TMP_FontAsset GameFont = null;
         public static Material GameFontMaterial = null;
@@ -311,12 +308,6 @@ namespace Hotd2Remake_ArcadePlugin
                     GamePlayer.Activate();
                 CR_ReadyCheckPanel.TryRefreshingMultiplayerStatus();
                 CR_AudioManager.PlayUIAudioAccept(gameObject);
-                if (CR_ReadyCheckPanel.IsActive)
-                    SetPlayerReady(Player);
-            }
-            else if (CR_ReadyCheckPanel.IsActive)
-            {
-                SetPlayerReady(Player);
             }
             else if (GamePlayer.HasDied && (ActiveMaps & InputMapsFlag.DeathScreen) != 0)
             {
@@ -350,16 +341,6 @@ namespace Hotd2Remake_ArcadePlugin
         private static bool SkipDemulShooterStartButton()
         {
             return false;
-        }
-
-        /// <summary>
-        /// Ready screen at the beginning of a chapter : START is validating it, like the trigger
-        /// </summary>
-        private static void SetPlayerReady(PlayerType Player)
-        {
-            CR_ReadyCheckPanel Panel = _ReadyCheckPanelInstance.GetValue(null) as CR_ReadyCheckPanel;
-            if (Panel != null)
-                Panel.SetPlayerReady(Player);
         }
 
         #endregion

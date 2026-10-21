@@ -26,6 +26,8 @@ namespace Hotd2Remake_ArcadePlugin
         private const float LOGO_FADE_OUT_START = 5.0f;
         private const float LOGO_FADE_OUT_DURATION = 4.0f;
         private static Image _Logo = null;
+        //The video player is going back to the beginning of the main video when it ends, before the game changes the clip : the logo is only shown once per clip
+        private static bool _LogoShownForThisClip = false;
 
         [HarmonyPatch(typeof(CR_MainMenuMovieController), "Start")]
         class Start
@@ -44,12 +46,12 @@ namespace Hotd2Remake_ArcadePlugin
         [HarmonyPatch(typeof(CR_MainMenuMovieController), "Update")]
         class Update
         {
-            static bool Prefix(CR_MainMenuMovieController __instance, CR_SimplePressAnyKeyDisplay ___simplePressAnyKey, CR_MainMenu ___mainMenu, MP_VideoPlayerController ___mainMenuVideoController, VideoClip ___mainVideoClip)
+            static bool Prefix(CR_MainMenuMovieController __instance, CR_SimplePressAnyKeyDisplay ___simplePressAnyKey, CR_MainMenu ___mainMenu, MP_VideoPlayerController ___mainMenuVideoController, VideoClip ___mainVideoClip, Image ___blackScreenImage)
             {
                 Hotd2r_ArcadePlugin.TitleScreen = __instance;
 
                 bool IsTitleScreen = !(___mainMenu.IsMainMenuOpen || ___mainMenu.IsMainMenuOpening) && ___simplePressAnyKey.IsVisible;
-                updateLogo(IsTitleScreen && ___mainMenuVideoController != null && ___mainMenuVideoController.CurrentVideoClip == ___mainVideoClip ? ___mainMenuVideoController.CurrentVideoTime : -1.0);
+                updateLogo(IsTitleScreen && ___mainMenuVideoController != null && ___mainMenuVideoController.CurrentVideoClip == ___mainVideoClip ? ___mainMenuVideoController.CurrentVideoTime : -1.0, ___blackScreenImage);
 
                 if (!IsTitleScreen)
                     return true;
@@ -110,22 +112,40 @@ namespace Hotd2Remake_ArcadePlugin
 
         /// <summary>
         /// Fading in at the beginning of the main video, and out after a few seconds
+        /// VideoTime < 0 when the main video is not playing (other video, or no clip while the game is changing it)
         /// </summary>
-        private static void updateLogo(double VideoTime)
+        private static void updateLogo(double VideoTime, Image BlackScreen)
         {
             if (_Logo == null)
                 return;
 
             float Alpha = 0.0f;
-            if (VideoTime >= 0.0)
+            if (VideoTime < 0.0)
+            {
+                _LogoShownForThisClip = false;
+            }
+            else if (!_LogoShownForThisClip)
             {
                 if (VideoTime < LOGO_FADE_IN_END)
+                {
                     Alpha = (float)(VideoTime / LOGO_FADE_IN_END);
+                }
                 else if (VideoTime < LOGO_FADE_OUT_START)
+                {
                     Alpha = 1.0f;
+                }
                 else
+                {
                     Alpha = Mathf.Clamp01(1.0f - (float)(VideoTime - LOGO_FADE_OUT_START) / LOGO_FADE_OUT_DURATION);
+                    if (Alpha <= 0.0f)
+                        _LogoShownForThisClip = true;
+                }
             }
+
+            //Following the game's own fades to black between the videos
+            if (BlackScreen != null)
+                Alpha *= 1.0f - BlackScreen.color.a;
+
             _Logo.color = new Color(1.0f, 1.0f, 1.0f, Alpha);
         }
 

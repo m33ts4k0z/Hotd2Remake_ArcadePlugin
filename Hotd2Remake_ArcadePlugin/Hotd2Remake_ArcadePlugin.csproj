@@ -97,6 +97,7 @@
     <Compile Include="Patch\mCR_MainMenuMovieController.cs" />
     <Compile Include="Patch\mCR_Player.cs" />
     <Compile Include="Patch\mCR_PlayerDeathScreen.cs" />
+    <Compile Include="Patch\mCR_ReadyCheckPanel.cs" />
     <Compile Include="Patch\mHD_SkipController.cs" />
     <Compile Include="Patch\mHD_SkipView.cs" />
     <Compile Include="Patch\mMP_AchievementsHandler.cs" />
