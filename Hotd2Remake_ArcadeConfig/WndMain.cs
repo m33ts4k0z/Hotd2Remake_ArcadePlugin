@@ -8,7 +8,7 @@ using System.Windows.Forms;
 namespace Hotd2Remake_ArcadeConfig
 {
     /// <summary>
-    /// Settings of the House of the Dead 2 Remake Arcade Plugin, like argonlefou's ArcadeMod_Config for the first game.
+    /// Settings of the House of the Dead 2 Remake Arcade Plugin, looking like argonlefou's ArcadeMod_Config for the first game.
     /// To be copied in the game folder, next to the game's exe : it is editing BepInEx\plugins\Hotd2Remake_ArcadePlugin.ini
     /// </summary>
     public class WndMain : Form
@@ -59,13 +59,16 @@ namespace Hotd2Remake_ArcadeConfig
         #endregion
 
         private const string INI_FILE_NAME = "Hotd2Remake_ArcadePlugin.ini";
-        private const string TAB_ARCADE = "Coins and keys";
-        private const string TAB_GAME = "Game";
-        private const string TAB_VIDEO = "Video";
-        private const string TAB_SOUND = "Sound";
+        private const string GAME_EXE_NAME = "THE HOUSE OF THE DEAD 2 Remake.exe";
+        private const string TAB_ARCADE = "Arcade Menu";
+        private const string TAB_DISPLAY = "Display Settings";
+        private const string TAB_SOUND = "Sound Option";
+        private const string TAB_CONTROLS = "Controls";
 
         private IniFile _Ini;
         private List<Setting> _Settings = new List<Setting>();
+        //Mod Options boxes and their check boxes, sized once the fonts are known
+        private Dictionary<GroupBox, TableLayoutPanel> _GroupBoxes = new Dictionary<GroupBox, TableLayoutPanel>();
 
         public WndMain()
         {
@@ -73,11 +76,13 @@ namespace Hotd2Remake_ArcadeConfig
             AutoScaleMode = AutoScaleMode.None;
             using (Graphics g = CreateGraphics())
                 _Scale = g.DpiX / 96f;
-            Text = "House of the Dead 2 Remake - Arcade Plugin settings";
+            Text = "House Of The Dead 2 Remake - Arcade Configurator";
             Font = new Font("Segoe UI", 9f);
-            ClientSize = new Size(S(560), S(560));
+            ClientSize = new Size(S(640), S(480));
+            Padding = new Padding(S(12), 0, S(12), S(12));
             FormBorderStyle = FormBorderStyle.Sizable;
             StartPosition = FormStartPosition.CenterScreen;
+            setGameIcon();
 
             _Ini = new IniFile(findIniFile());
             createSettings();
@@ -85,6 +90,17 @@ namespace Hotd2Remake_ArcadeConfig
             readSettings();
             //Can be made bigger, not smaller than the space needed for all the settings
             MinimumSize = Size;
+        }
+
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
+            foreach (KeyValuePair<GroupBox, TableLayoutPanel> Box in _GroupBoxes)
+            {
+                //Title and borders, then the check boxes
+                int Content = Box.Value.GetPreferredSize(new Size(Box.Key.DisplayRectangle.Width, 0)).Height;
+                Box.Key.Height += Content - Box.Key.DisplayRectangle.Height;
+            }
         }
 
         private float _Scale = 1f;
@@ -107,133 +123,342 @@ namespace Hotd2Remake_ArcadeConfig
             return InPluginsFolder;
         }
 
+        /// <summary>
+        /// The game's icon, when the tool is in the game folder
+        /// </summary>
+        private void setGameIcon()
+        {
+            string GameExe = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, GAME_EXE_NAME);
+            try
+            {
+                if (File.Exists(GameExe))
+                    Icon = Icon.ExtractAssociatedIcon(GameExe);
+            }
+            catch (Exception)
+            {
+                //Default icon
+            }
+        }
+
         private void createSettings()
         {
-            string[] Credits = new string[] { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
-            _Settings.Add(Setting.YesNo(TAB_ARCADE, "CREDITS", "FREEPLAY", "Free play (no coins)", false));
-            _Settings.Add(Setting.List(TAB_ARCADE, "CREDITS", "CREDITS_TO_START", "Credits to start or join", "1", Credits));
-            _Settings.Add(Setting.List(TAB_ARCADE, "CREDITS", "CREDITS_TO_CONTINUE", "Credits to continue", "1", Credits));
-            _Settings.Add(Setting.Text(TAB_ARCADE, "INPUT_KEYS", "P1_START", "P1 START key", "49"));
-            _Settings.Add(Setting.Text(TAB_ARCADE, "INPUT_KEYS", "P2_START", "P2 START key", "50"));
-            _Settings.Add(Setting.Text(TAB_ARCADE, "INPUT_KEYS", "P1_COIN", "P1 COIN key", "53"));
-            _Settings.Add(Setting.Text(TAB_ARCADE, "INPUT_KEYS", "P2_COIN", "P2 COIN key", "54"));
-            _Settings.Add(Setting.Text(TAB_ARCADE, "INPUT_KEYS", "EXIT", "Quit key (0 = none)", "27"));
+            _Settings.Add(Setting.OnOff(TAB_ARCADE, "CREDITS", "FREEPLAY", "Freeplay", false));
+            _Settings.Add(Setting.Range(TAB_ARCADE, "CREDITS", "CREDITS_TO_START", "Credits To Start", 1, 9, false, "1"));
+            _Settings.Add(Setting.Range(TAB_ARCADE, "CREDITS", "CREDITS_TO_CONTINUE", "Credits To Continue", 1, 9, false, "1"));
+            _Settings.Add(Setting.List(TAB_ARCADE, "GAME", "MODE", "Game Mode", "Original", "ORIGINAL", "Original", "ARCADE", "Arcade", "HORDE", "Horde"));
+            _Settings.Add(Setting.List(TAB_ARCADE, "GAME", "DIFFICULTY", "Difficulty", "Normal",
+                "VERY EASY", "VeryEasy", "EASY", "Easy", "NORMAL", "Normal", "HARD", "Hard", "VERY HARD", "VeryHard"));
+            _Settings.Add(Setting.List(TAB_ARCADE, "GAME", "SCORE_MODE", "Score Mode", "Classic", "CLASSIC", "Classic", "MODERN", "Modern"));
+            _Settings.Add(Setting.Range(TAB_ARCADE, "GAME", "LIVES", "Life Torches", 1, 6, true));
+            _Settings.Add(Setting.Optional(TAB_ARCADE, "GAME", "LANGUAGE", "Language",
+                "ENGLISH", "English", "FRENCH", "French", "GERMAN", "German", "ITALIAN", "Italian", "SPANISH", "Spanish",
+                "PORTUGUESE", "Portuguese", "POLISH", "Polish", "JAPANESE", "Japanese", "CHINESE", "Chinese"));
+            _Settings.Add(Setting.OnOff(TAB_ARCADE, "SOUND", "ATTRACT_SOUND", "Advertise Sound", true));
+            _Settings.Add(Setting.Check(TAB_ARCADE, "GAME", "HIDE_CURSOR", "Hide Mouse Cursor", true));
+            _Settings.Add(Setting.Check(TAB_ARCADE, "GAME", "ARCADE_HUD", "Arcade HUD (no score, no weapon)", true));
+            _Settings.Add(Setting.Check(TAB_ARCADE, "GAME", "DISABLE_MAIN_MENU", "Disable Main Menu (START only)", true));
+            _Settings.Add(Setting.Check(TAB_ARCADE, "GAME", "SAVE_IN_GAME_FOLDER", "Separate Save (NVRAM folder)", true));
 
-            _Settings.Add(Setting.List(TAB_GAME, "GAME", "MODE", "Game mode", "Original", "Original", "Arcade", "Horde"));
-            _Settings.Add(Setting.List(TAB_GAME, "GAME", "DIFFICULTY", "Difficulty", "Normal", "VeryEasy", "Easy", "Normal", "Hard", "VeryHard"));
-            _Settings.Add(Setting.List(TAB_GAME, "GAME", "SCORE_MODE", "Score mode", "Classic", "Classic", "Modern"));
-            _Settings.Add(Setting.OptionalRange(TAB_GAME, "GAME", "LIVES", "Life torches", 1, 6, 1));
-            _Settings.Add(Setting.Optional(TAB_GAME, "GAME", "LANGUAGE", "Language",
-                "English", "English", "French", "French", "German", "German", "Italian", "Italian", "Spanish", "Spanish",
-                "Portuguese", "Portuguese", "Polish", "Polish", "Japanese", "Japanese", "Chinese", "Chinese"));
-            _Settings.Add(Setting.YesNo(TAB_GAME, "GAME", "ARCADE_HUD", "No score and weapon name in the HUD", true));
-            _Settings.Add(Setting.YesNo(TAB_GAME, "GAME", "DISABLE_MAIN_MENU", "Title screen only reacts to START", true));
-            _Settings.Add(Setting.YesNo(TAB_GAME, "GAME", "HIDE_CURSOR", "Hide the mouse cursor", true));
-            _Settings.Add(Setting.YesNo(TAB_GAME, "GAME", "SAVE_IN_GAME_FOLDER", "Separate save (NVRAM folder)", true));
-
-            Setting Resolution = Setting.Optional(TAB_VIDEO, "VIDEO", "RESOLUTION", "Resolution");
+            Setting Resolution = Setting.Optional(TAB_DISPLAY, "VIDEO", "RESOLUTION", "Resolution");
             Resolution.Choices.AddRange(getScreenResolutions());
             _Settings.Add(Resolution);
-            _Settings.Add(Setting.Optional(TAB_VIDEO, "VIDEO", "FULLSCREEN_MODE", "Display mode",
-                "Exclusive fullscreen", "ExclusiveFullScreen", "Fullscreen window", "FullScreenWindow", "Maximized window", "MaximizedWindow", "Windowed", "Windowed"));
-            _Settings.Add(Setting.Optional(TAB_VIDEO, "VIDEO", "VSYNC", "V-Sync", "Off", "Off", "Every V-Blank", "EveryVBlank", "Every second V-Blank", "EverySecondVBlank"));
-            _Settings.Add(Setting.Optional(TAB_VIDEO, "VIDEO", "ANTI_ALIASING", "Anti-aliasing", "Off", "Off", "SMAA", "SMAA", "TAA", "TAA"));
-            _Settings.Add(Setting.Optional(TAB_VIDEO, "VIDEO", "SHADOW_QUALITY", "Shadows", "Low", "Low", "Medium", "Medium", "High", "High"));
-            _Settings.Add(Setting.Optional(TAB_VIDEO, "VIDEO", "BLOOM", "Bloom", "On", "1", "Off", "0"));
-            _Settings.Add(Setting.Optional(TAB_VIDEO, "VIDEO", "MOTION_BLUR", "Motion blur", "On", "1", "Off", "0"));
-            _Settings.Add(Setting.Optional(TAB_VIDEO, "VIDEO", "AMBIENT_OCCLUSION", "Ambient occlusion", "On", "1", "Off", "0"));
-            _Settings.Add(Setting.OptionalRange(TAB_VIDEO, "VIDEO", "BRIGHTNESS", "Brightness (game : 50)", 0, 100, 5));
-            _Settings.Add(Setting.OptionalRange(TAB_VIDEO, "VIDEO", "HUD_SCALE", "HUD scale", 50, 150, 10, " %"));
+            _Settings.Add(Setting.Optional(TAB_DISPLAY, "VIDEO", "FULLSCREEN_MODE", "Screen Mode",
+                "EXCLUSIVE FULLSCREEN", "ExclusiveFullScreen", "FULLSCREEN WINDOW", "FullScreenWindow", "MAXIMIZED WINDOW", "MaximizedWindow", "WINDOWED", "Windowed"));
+            _Settings.Add(Setting.Optional(TAB_DISPLAY, "VIDEO", "SHADOW_QUALITY", "Shadow Quality", "LOW", "Low", "MEDIUM", "Medium", "HIGH", "High"));
+            _Settings.Add(Setting.Optional(TAB_DISPLAY, "VIDEO", "ANTI_ALIASING", "Anti-aliasing", "OFF", "Off", "SMAA", "SMAA", "TAA", "TAA"));
+            _Settings.Add(Setting.Optional(TAB_DISPLAY, "VIDEO", "BLOOM", "Bloom", "OFF", "0", "ON", "1"));
+            _Settings.Add(Setting.Optional(TAB_DISPLAY, "VIDEO", "MOTION_BLUR", "Motion Blur", "OFF", "0", "ON", "1"));
+            _Settings.Add(Setting.Optional(TAB_DISPLAY, "VIDEO", "AMBIENT_OCCLUSION", "Ambient Occlusion", "OFF", "0", "ON", "1"));
+            _Settings.Add(Setting.Optional(TAB_DISPLAY, "VIDEO", "VSYNC", "VSync", "OFF", "Off", "EVERY V-BLANK", "EveryVBlank", "EVERY 2ND V-BLANK", "EverySecondVBlank"));
+            _Settings.Add(Setting.OptionalSlider(TAB_DISPLAY, "VIDEO", "HUD_SCALE", "HUD Scale", 50, 150, 10, 100, " %"));
+            _Settings.Add(Setting.OptionalSlider(TAB_DISPLAY, "VIDEO", "BRIGHTNESS", "Brightness", 0, 100, 10, 50, string.Empty));
 
-            _Settings.Add(Setting.OptionalRange(TAB_SOUND, "SOUND", "MASTER_VOLUME", "Master volume", 0, 100, 10, " %"));
-            _Settings.Add(Setting.OptionalRange(TAB_SOUND, "SOUND", "MUSIC_VOLUME", "Music volume", 0, 100, 10, " %"));
-            _Settings.Add(Setting.OptionalRange(TAB_SOUND, "SOUND", "EFFECTS_VOLUME", "Effects volume", 0, 100, 10, " %"));
-            _Settings.Add(Setting.OptionalRange(TAB_SOUND, "SOUND", "UI_VOLUME", "Menus volume", 0, 100, 10, " %"));
-            _Settings.Add(Setting.OptionalRange(TAB_SOUND, "SOUND", "DIALOGS_VOLUME", "Dialogs volume", 0, 100, 10, " %"));
-            _Settings.Add(Setting.OptionalRange(TAB_SOUND, "SOUND", "SHOT_VOLUME", "Gun shots volume", 0, 100, 10, " %"));
-            _Settings.Add(Setting.Optional(TAB_SOUND, "SOUND", "CLASSIC_MUSIC", "Music", "Original House of the Dead 2", "1", "Remake", "0"));
-            _Settings.Add(Setting.YesNo(TAB_SOUND, "SOUND", "ATTRACT_SOUND", "Sound on the title screen", true));
+            _Settings.Add(Setting.OptionalSlider(TAB_SOUND, "SOUND", "MASTER_VOLUME", "Master Volume", 0, 100, 10, 100, " %").InArea(SettingArea.Left));
+            _Settings.Add(Setting.OptionalSlider(TAB_SOUND, "SOUND", "MUSIC_VOLUME", "Music Volume", 0, 100, 10, 100, " %").InArea(SettingArea.Left));
+            _Settings.Add(Setting.OptionalSlider(TAB_SOUND, "SOUND", "EFFECTS_VOLUME", "Effects Volume", 0, 100, 10, 100, " %").InArea(SettingArea.Left));
+            _Settings.Add(Setting.Optional(TAB_SOUND, "SOUND", "CLASSIC_MUSIC", "Soundtrack", "REMAKE", "0", "CLASSIC", "1"));
+            _Settings.Add(Setting.OptionalSlider(TAB_SOUND, "SOUND", "UI_VOLUME", "UI Volume", 0, 100, 10, 100, " %"));
+            _Settings.Add(Setting.OptionalSlider(TAB_SOUND, "SOUND", "DIALOGS_VOLUME", "Dialogs Volume", 0, 100, 10, 100, " %"));
+            _Settings.Add(Setting.OptionalSlider(TAB_SOUND, "SOUND", "SHOT_VOLUME", "Shot Volume", 0, 100, 10, 100, " %"));
+
+            _Settings.Add(Setting.Text(TAB_CONTROLS, "INPUT_KEYS", "P1_START", "P1 Start Key", "49"));
+            _Settings.Add(Setting.Text(TAB_CONTROLS, "INPUT_KEYS", "P2_START", "P2 Start Key", "50"));
+            _Settings.Add(Setting.Text(TAB_CONTROLS, "INPUT_KEYS", "P1_COIN", "P1 Coin Key", "53"));
+            _Settings.Add(Setting.Text(TAB_CONTROLS, "INPUT_KEYS", "P2_COIN", "P2 Coin Key", "54"));
+            _Settings.Add(Setting.Text(TAB_CONTROLS, "INPUT_KEYS", "EXIT", "Quit Key (0 = none)", "27"));
         }
+
+        #region Layout
 
         private void createControls()
         {
+            ToolTip Tips = new ToolTip();
+
+            //Logo on the left, Save button on the right, like ArcadeMod_Config
+            TableLayoutPanel Top = new TableLayoutPanel();
+            Top.Dock = DockStyle.Top;
+            Top.Height = S(146);
+            Top.Padding = new Padding(0, S(12), 0, S(8));
+            Top.ColumnCount = 2;
+            Top.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, S(270)));
+            Top.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f));
+            Top.RowCount = 2;
+            Top.RowStyles.Add(new RowStyle(SizeType.Percent, 60f));
+            Top.RowStyles.Add(new RowStyle(SizeType.Percent, 40f));
+
+            PictureBox Logo = new PictureBox();
+            Logo.Dock = DockStyle.Fill;
+            Logo.Margin = new Padding(0);
+            Logo.BorderStyle = BorderStyle.Fixed3D;
+            Logo.BackColor = Color.Black;
+            Logo.SizeMode = PictureBoxSizeMode.Zoom;
+            Logo.Image = loadLogo();
+            Top.Controls.Add(Logo, 0, 0);
+            Top.SetRowSpan(Logo, 2);
+
+            Button SaveButton = new Button();
+            SaveButton.Text = "Save Config";
+            SaveButton.Font = new Font(Font.FontFamily, 11f);
+            SaveButton.Height = S(44);
+            SaveButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            SaveButton.Margin = new Padding(S(18), 0, 0, S(4));
+            SaveButton.Click += SaveButton_Click;
+            Top.Controls.Add(SaveButton, 1, 0);
+
+            Label FileLabel = new Label();
+            FileLabel.Text = _Ini.FilePath;
+            FileLabel.ForeColor = SystemColors.GrayText;
+            FileLabel.Font = new Font(Font.FontFamily, 7.5f);
+            FileLabel.AutoEllipsis = true;
+            FileLabel.Height = S(34);
+            FileLabel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            FileLabel.Margin = new Padding(S(18), S(4), 0, 0);
+            Tips.SetToolTip(FileLabel, _Ini.FilePath);
+            Top.Controls.Add(FileLabel, 1, 1);
+
             TabControl Tabs = new TabControl();
             Tabs.Dock = DockStyle.Fill;
-            foreach (string TabName in new string[] { TAB_ARCADE, TAB_GAME, TAB_VIDEO, TAB_SOUND })
-            {
-                TabPage Page = new TabPage(TabName);
-                Page.Padding = new Padding(S(12));
-                TableLayoutPanel Table = new TableLayoutPanel();
-                Table.Dock = DockStyle.Fill;
-                Table.ColumnCount = 2;
-                Table.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, S(230)));
-                Table.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f));
+            foreach (string TabName in new string[] { TAB_ARCADE, TAB_DISPLAY, TAB_SOUND, TAB_CONTROLS })
+                Tabs.TabPages.Add(createTab(TabName));
 
-                foreach (Setting s in _Settings)
+            //Docked in the reverse order : the logo first, then the tabs in the remaining space
+            Controls.Add(Tabs);
+            Controls.Add(Top);
+        }
+
+        private Image loadLogo()
+        {
+            using (Stream Res = typeof(WndMain).Assembly.GetManifestResourceStream("Hotd2Remake_ArcadeConfig.logo.jpg"))
+            {
+                if (Res == null)
+                    return null;
+                //The stream must stay open with Image.FromStream, a copy doesn't need it
+                using (Image Img = Image.FromStream(Res))
+                    return new Bitmap(Img);
+            }
+        }
+
+        /// <summary>
+        /// Lists on the left, mod options and sliders on the right, help at the bottom
+        /// </summary>
+        private TabPage createTab(string TabName)
+        {
+            TabPage Page = new TabPage(TabName);
+            //Same color as the sliders
+            Page.BackColor = SystemColors.Control;
+            Page.Padding = new Padding(S(10));
+
+            TableLayoutPanel Columns = new TableLayoutPanel();
+            Columns.Dock = DockStyle.Fill;
+            Columns.ColumnCount = 2;
+            Columns.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 56f));
+            Columns.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 44f));
+            Columns.RowCount = 2;
+            Columns.RowStyles.Add(new RowStyle(SizeType.Percent, 100f));
+            Columns.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+
+            TableLayoutPanel Left = createColumn(2);
+            Left.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, S(125)));
+            Left.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f));
+            Left.Margin = new Padding(0, 0, S(16), 0);
+            TableLayoutPanel Right = createColumn(1);
+            Right.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f));
+            Right.Margin = new Padding(0);
+
+            GroupBox ModOptions = null;
+            TableLayoutPanel Options = null;
+            bool HasOptionalSetting = false;
+            foreach (Setting s in _Settings)
+            {
+                if (s.Tab != TabName)
+                    continue;
+                HasOptionalSetting |= s.Kind == SettingKind.Slider || s.Choices.Exists(c => c.Key == Setting.GAME_SETTING);
+                TableLayoutPanel Column = s.Area == SettingArea.Left ? Left : Right;
+
+                if (s.Kind == SettingKind.Check)
                 {
-                    if (s.Tab != TabName)
-                        continue;
+                    if (ModOptions == null)
+                    {
+                        ModOptions = new GroupBox();
+                        ModOptions.Text = "Mod Options";
+                        ModOptions.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+                        ModOptions.Padding = new Padding(S(10), S(6), S(6), S(6));
+                        ModOptions.Margin = new Padding(0, 0, 0, S(8));
+                        Options = createColumn(1);
+                        _GroupBoxes.Add(ModOptions, Options);
+                        Options.Dock = DockStyle.Fill;
+                        Options.Margin = new Padding(0);
+                        ModOptions.Controls.Add(Options);
+                        addRow(Column, ModOptions);
+                    }
+                    CheckBox Box = new CheckBox();
+                    Box.Text = s.Label;
+                    Box.AutoSize = true;
+                    s.Control = Box;
+                    addRow(Options, Box);
+                }
+                else if (s.Kind == SettingKind.Slider)
+                {
+                    addRow(Column, createSlider(s));
+                }
+                else
+                {
                     Label SettingLabel = new Label();
                     SettingLabel.Text = s.Label;
                     SettingLabel.AutoSize = true;
                     SettingLabel.Anchor = AnchorStyles.Left;
-                    if (s.IsText)
+                    if (s.Kind == SettingKind.Text)
                     {
                         TextBox Box = new TextBox();
                         Box.Width = S(80);
+                        Box.Anchor = AnchorStyles.Left;
                         s.Control = Box;
                     }
                     else
                     {
                         ComboBox Box = new ComboBox();
                         Box.DropDownStyle = ComboBoxStyle.DropDownList;
-                        Box.Width = S(260);
                         //Wider with the window
                         Box.Anchor = AnchorStyles.Left | AnchorStyles.Right;
                         foreach (KeyValuePair<string, string> Choice in s.Choices)
+                        {
                             Box.Items.Add(Choice.Key);
+                            //Whole texts in the list, even when the window is small
+                            Box.DropDownWidth = Math.Max(Box.DropDownWidth, TextRenderer.MeasureText(Choice.Key, Font).Width + S(24));
+                        }
                         s.Control = Box;
                     }
-                    Table.Controls.Add(SettingLabel);
-                    Table.Controls.Add(s.Control);
+                    addRow(Column, SettingLabel, s.Control);
                 }
-
-                Label Help = new Label();
-                Help.AutoSize = true;
-                Help.MaximumSize = new Size(S(480), 0);
-                Help.Margin = new Padding(S(3), S(12), S(3), S(3));
-                if (TabName == TAB_ARCADE)
-                    Help.Text = "Keys are Unity KeyCode numbers : 49 = 1, 50 = 2, 53 = 5, 54 = 6, 27 = Esc.\r\nThe guns, their recoil and the crosshairs are handled by DemulShooter.";
-                else
-                    Help.Text = Setting.GAME_SETTING + " : the game keeps its own setting, from its save file.";
-                Table.Controls.Add(Help);
-                Table.SetColumnSpan(Help, 2);
-
-                Page.Controls.Add(Table);
-                Tabs.TabPages.Add(Page);
             }
+            //Remaining space at the bottom, the rows keep their size
+            addRow(Left, createFiller(), null, true);
+            addRow(Right, createFiller(), null, true);
 
-            Panel Bottom = new Panel();
-            Bottom.Dock = DockStyle.Bottom;
-            //Final width before adding the anchored controls, their distances to the borders are computed when they are added
-            Bottom.Size = new Size(ClientSize.Width, S(64));
-            Label FileLabel = new Label();
-            FileLabel.Text = _Ini.FilePath;
-            FileLabel.AutoEllipsis = true;
-            FileLabel.SetBounds(S(12), S(6), S(536), S(20));
-            FileLabel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            Button SaveButton = new Button();
-            SaveButton.Text = "Save";
-            SaveButton.SetBounds(S(448), S(30), S(100), S(28));
-            SaveButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            SaveButton.Click += SaveButton_Click;
-            Bottom.Controls.Add(FileLabel);
-            Bottom.Controls.Add(SaveButton);
+            Label Help = new Label();
+            Help.AutoSize = true;
+            Help.ForeColor = SystemColors.GrayText;
+            Help.Margin = new Padding(S(3), S(6), S(3), 0);
+            if (TabName == TAB_CONTROLS)
+                Help.Text = "Keys are Unity KeyCode numbers : 49 = 1, 50 = 2, 53 = 5, 54 = 6, 27 = Esc.\r\nThe guns, their recoil and the crosshairs are handled by DemulShooter.";
+            else if (HasOptionalSetting)
+                Help.Text = Setting.GAME_SETTING + " or unchecked slider : the game keeps its own setting.";
 
-            Controls.Add(Bottom);
-            Controls.Add(Tabs);
-            Tabs.BringToFront();
+            Columns.Controls.Add(Left, 0, 0);
+            Columns.Controls.Add(Right, 1, 0);
+            Columns.Controls.Add(Help, 0, 1);
+            Columns.SetColumnSpan(Help, 2);
+            Page.Controls.Add(Columns);
+            return Page;
         }
+
+        private static Control createFiller()
+        {
+            Panel Filler = new Panel();
+            Filler.Size = Size.Empty;
+            Filler.Margin = new Padding(0);
+            return Filler;
+        }
+
+        private TableLayoutPanel createColumn(int ColumnCount)
+        {
+            TableLayoutPanel Column = new TableLayoutPanel();
+            Column.Dock = DockStyle.Fill;
+            Column.ColumnCount = ColumnCount;
+            Column.RowCount = 0;
+            return Column;
+        }
+
+        /// <summary>
+        /// Label and value, or one control on the whole row
+        /// </summary>
+        private void addRow(TableLayoutPanel Column, Control First, Control Second = null, bool IsLast = false)
+        {
+            int Row = Column.RowCount;
+            Column.RowCount++;
+            Column.RowStyles.Add(IsLast ? new RowStyle(SizeType.Percent, 100f) : new RowStyle(SizeType.AutoSize));
+            Column.Controls.Add(First, 0, Row);
+            if (Second != null)
+                Column.Controls.Add(Second, 1, Row);
+            else if (Column.ColumnCount > 1)
+                Column.SetColumnSpan(First, Column.ColumnCount);
+        }
+
+        /// <summary>
+        /// "Label :" check box (unchecked = game setting) and value, slider under them
+        /// </summary>
+        private Control createSlider(Setting s)
+        {
+            TableLayoutPanel Block = new TableLayoutPanel();
+            Block.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            Block.Height = S(72);
+            Block.Margin = new Padding(0, 0, 0, S(4));
+            Block.ColumnCount = 2;
+            Block.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+            Block.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f));
+            Block.RowCount = 2;
+            Block.RowStyles.Add(new RowStyle(SizeType.Absolute, S(24)));
+            Block.RowStyles.Add(new RowStyle(SizeType.Percent, 100f));
+
+            s.OverrideBox = new CheckBox();
+            s.OverrideBox.Text = s.Label + " :";
+            s.OverrideBox.AutoSize = true;
+            s.OverrideBox.Anchor = AnchorStyles.Left;
+            s.ValueLabel = new Label();
+            s.ValueLabel.AutoSize = true;
+            s.ValueLabel.Anchor = AnchorStyles.Right;
+            s.Slider = new TrackBar();
+            s.Slider.AutoSize = false;
+            s.Slider.Height = S(45);
+            s.Slider.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            s.Slider.Minimum = s.Min;
+            s.Slider.Maximum = s.Max;
+            s.Slider.TickFrequency = s.Step;
+            s.Slider.TickStyle = TickStyle.Both;
+            s.Slider.SmallChange = 1;
+            s.Slider.LargeChange = s.Step;
+            s.Slider.Value = s.GameDefault;
+            s.Control = s.Slider;
+
+            s.OverrideBox.CheckedChanged += (sender, e) => updateSlider(s);
+            s.Slider.ValueChanged += (sender, e) => updateSlider(s);
+
+            Block.Controls.Add(s.OverrideBox, 0, 0);
+            Block.Controls.Add(s.ValueLabel, 1, 0);
+            Block.Controls.Add(s.Slider, 0, 1);
+            Block.SetColumnSpan(s.Slider, 2);
+            updateSlider(s);
+            return Block;
+        }
+
+        private void updateSlider(Setting s)
+        {
+            s.Slider.Enabled = s.OverrideBox.Checked;
+            s.ValueLabel.Text = s.OverrideBox.Checked ? s.Slider.Value + s.Unit : Setting.GAME_SETTING;
+            s.ValueLabel.ForeColor = s.OverrideBox.Checked ? SystemColors.ControlText : SystemColors.GrayText;
+        }
+
+        #endregion
 
         private void readSettings()
         {
@@ -247,22 +472,52 @@ namespace Hotd2Remake_ArcadeConfig
                 if (Value.Length == 0)
                     Value = s.DefaultValue;
 
-                if (s.IsText)
+                switch (s.Kind)
                 {
-                    ((TextBox)s.Control).Text = Value;
-                    continue;
-                }
+                    case SettingKind.Text:
+                        ((TextBox)s.Control).Text = Value;
+                        break;
 
-                ComboBox Box = (ComboBox)s.Control;
-                int Index = s.Choices.FindIndex(c => string.Equals(c.Value, Value, StringComparison.OrdinalIgnoreCase));
-                if (Index < 0)
-                {
-                    //Value written by hand, not in the list
-                    s.Choices.Add(new KeyValuePair<string, string>(Value, Value));
-                    Box.Items.Add(Value);
-                    Index = s.Choices.Count - 1;
+                    case SettingKind.Check:
+                        ((CheckBox)s.Control).Checked = Value == "1" || Value.Equals("true", StringComparison.OrdinalIgnoreCase);
+                        break;
+
+                    case SettingKind.Slider:
+                        int Number;
+                        bool IsSet = int.TryParse(Value, out Number);
+                        s.Slider.Value = IsSet ? Math.Max(s.Min, Math.Min(s.Max, Number)) : s.GameDefault;
+                        s.OverrideBox.Checked = IsSet;
+                        updateSlider(s);
+                        break;
+
+                    default:
+                        ComboBox Box = (ComboBox)s.Control;
+                        int Index = s.Choices.FindIndex(c => string.Equals(c.Value, Value, StringComparison.OrdinalIgnoreCase));
+                        if (Index < 0)
+                        {
+                            //Value written by hand, not in the list
+                            s.Choices.Add(new KeyValuePair<string, string>(Value, Value));
+                            Box.Items.Add(Value);
+                            Index = s.Choices.Count - 1;
+                        }
+                        Box.SelectedIndex = Index;
+                        break;
                 }
-                Box.SelectedIndex = Index;
+            }
+        }
+
+        private string getValue(Setting s)
+        {
+            switch (s.Kind)
+            {
+                case SettingKind.Text:
+                    return ((TextBox)s.Control).Text.Trim();
+                case SettingKind.Check:
+                    return ((CheckBox)s.Control).Checked ? "1" : "0";
+                case SettingKind.Slider:
+                    return s.OverrideBox.Checked ? s.Slider.Value.ToString() : string.Empty;
+                default:
+                    return s.Choices[((ComboBox)s.Control).SelectedIndex].Value;
             }
         }
 
@@ -271,7 +526,7 @@ namespace Hotd2Remake_ArcadeConfig
             foreach (Setting s in _Settings)
             {
                 int KeyCode;
-                if (s.IsText && (!int.TryParse(((TextBox)s.Control).Text.Trim(), out KeyCode) || KeyCode < 0 || KeyCode > 1000))
+                if (s.Kind == SettingKind.Text && (!int.TryParse(getValue(s), out KeyCode) || KeyCode < 0 || KeyCode > 1000))
                 {
                     MessageBox.Show(s.Label + " : invalid key code (0-1000)", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
@@ -284,10 +539,7 @@ namespace Hotd2Remake_ArcadeConfig
                 if (!Directory.Exists(Folder))
                     Directory.CreateDirectory(Folder);
                 foreach (Setting s in _Settings)
-                {
-                    string Value = s.IsText ? ((TextBox)s.Control).Text.Trim() : s.Choices[((ComboBox)s.Control).SelectedIndex].Value;
-                    _Ini.Write(s.Section, s.Key, Value);
-                }
+                    _Ini.Write(s.Section, s.Key, getValue(s));
                 MessageBox.Show("Settings saved. They are used the next time the game is started.", Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception Ex)
@@ -318,7 +570,7 @@ namespace Hotd2Remake_ArcadeConfig
                 ScreenSize = new Size(Mode.dmPelsWidth, Mode.dmPelsHeight);
 
             return Sizes.ConvertAll(s => new KeyValuePair<string, string>(
-                s.Width + "x" + s.Height + " (" + getAspectRatio(s) + (s == ScreenSize ? ", screen" : "") + ")",
+                s.Width + "x" + s.Height + " (" + getAspectRatio(s) + (s == ScreenSize ? ", SCREEN" : "") + ")",
                 s.Width + "x" + s.Height));
         }
 
