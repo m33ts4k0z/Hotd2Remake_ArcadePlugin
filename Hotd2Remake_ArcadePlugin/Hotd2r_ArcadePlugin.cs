@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -369,6 +370,7 @@ namespace Hotd2Remake_ArcadePlugin
                 }
                 CR_ReadyCheckPanel.TryRefreshingMultiplayerStatus();
                 CR_AudioManager.PlayUIAudioAccept(gameObject);
+                StartCoroutine(ShowAmmoAfterJoin(GamePlayer));
             }
             else if (GamePlayer.HasDied && (ActiveMaps & InputMapsFlag.DeathScreen) != 0)
             {
@@ -377,6 +379,19 @@ namespace Hotd2Remake_ArcadePlugin
                 else
                     CR_AudioManager.PlayUIAudioError(gameObject);
             }
+        }
+
+        /// <summary>
+        /// Game bug : the bullets display is hiding itself when it is started for the first time (CR_AmmoController.Start()),
+        /// and only shown again at the end of the next cutscene. A player joining during a chapter had no bullets displayed until then
+        /// </summary>
+        private IEnumerator ShowAmmoAfterJoin(CR_Player GamePlayer)
+        {
+            //Start() is called once the bullets display is active, at the latest on the next frame
+            yield return null;
+            yield return null;
+            if (GamePlayer != null && GamePlayer.IsActivated && GamePlayer.WeaponHolder != null && !CR_Cutscene.IsCutsceneActive)
+                GamePlayer.WeaponHolder.ToggleAmmoController(true);
         }
 
         /// <summary>
