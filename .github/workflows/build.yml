@@ -1,6 +1,7 @@
 # Builds the plugin and the settings tool (Debug and Release) once a day, only if main has commits
 # that were not built successfully yet. "Run workflow" in the Actions tab always builds.
-# The Release files are kept as an artifact laid out like the game folder
+# The Release files are kept as an artifact laid out like the game folder, and published as a GitHub release
+# with the commits since the previous release as notes (the first one is the "Initial release")
 name: Build
 
 on:
@@ -43,8 +44,13 @@ jobs:
     needs: check
     if: needs.check.outputs.changed == 'true'
     runs-on: windows-latest
+    permissions:
+      contents: write
     steps:
+      # Whole history and tags, for the release notes
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
 
       - name: Check that the game DLLs are stripped reference copies
         shell: pwsh
@@ -86,3 +92,46 @@ jobs:
           name: Hotd2Remake_ArcadePlugin
           path: package/
           if-no-files-found: error
+
+      # Tag from the date (v2026.10.22, then .2, .3... on the same day), notes from the commits since the previous release
+      - name: Create the release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          [Console]::OutputEncoding = [Text.Encoding]::UTF8
+          if (git tag --points-at HEAD --list 'v*') {
+            Write-Output "This commit is already released"
+            exit 0
+          }
+          $prev = git tag --merged HEAD --list 'v*' --sort=-committerdate | Select-Object -First 1
+          $date = (Get-Date).ToUniversalTime().ToString('yyyy.MM.dd')
+          $tag = "v$date"
+          $n = 1
+          while (git tag --list $tag) { $n++; $tag = "v$date.$n" }
+          $title = if ($prev) { $tag } else { 'Initial release' }
+          $range = if ($prev) { "$prev..HEAD" } else { 'HEAD' }
+          $repoUrl = "$env:GITHUB_SERVER_URL/$env:GITHUB_REPOSITORY"
+
+          $notes = @('Unzip in the game folder, next to `THE HOUSE OF THE DEAD 2 Remake.exe` (BepInEx 5 x64 is needed, see the README).', '')
+          foreach ($sha in git log --format=%H $range) {
+            $subject = git log -1 --format=%s $sha
+            $body = git log -1 --format=%b $sha | Where-Object { $_ -notmatch '^(Co-Authored-By|Signed-off-by):' }
+            $notes += "### $subject ([``$($sha.Substring(0, 7))``]($repoUrl/commit/$sha))", ''
+            if ($body) { $notes += ($body -join "`n").Trim(), '' }
+          }
+          if ($prev) { $notes += "**All changes**: $repoUrl/compare/$prev...$tag" }
+          $notes | Set-Content "$env:RUNNER_TEMP/notes.md"
+
+          $zip = "Hotd2Remake_ArcadePlugin_$tag.zip"
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          # Entries with '/' : with '\' some unzip tools make "BepInEx\plugins\..." file names instead of folders
+          $root = (Resolve-Path package).Path
+          $archive = [IO.Compression.ZipFile]::Open("$PWD/$zip", 'Create')
+          foreach ($file in Get-ChildItem package -Recurse -File) {
+            $entry = $file.FullName.Substring($root.Length + 1).Replace('\', '/')
+            [IO.Compression.ZipFileExtensions]::CreateEntryFromFile($archive, $file.FullName, $entry) | Out-Null
+          }
+          $archive.Dispose()
+          gh release create $tag $zip --target $env:GITHUB_SHA --title $title --notes-file "$env:RUNNER_TEMP/notes.md"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
