@@ -17,6 +17,7 @@ namespace Hotd2Remake_ArcadeConfig
 
         [DllImport("user32.dll")]
         private static extern bool EnumDisplaySettings(string deviceName, int modeNum, ref DEVMODE devMode);
+        private const int ENUM_CURRENT_SETTINGS = -1;
 
         [StructLayout(LayoutKind.Sequential)]
         private struct DEVMODE
@@ -131,8 +132,7 @@ namespace Hotd2Remake_ArcadeConfig
             _Settings.Add(Setting.YesNo(TAB_GAME, "GAME", "SAVE_IN_GAME_FOLDER", "Separate save (NVRAM folder)", true));
 
             Setting Resolution = Setting.Optional(TAB_VIDEO, "VIDEO", "RESOLUTION", "Resolution");
-            foreach (string r in getScreenResolutions())
-                Resolution.Choices.Add(new KeyValuePair<string, string>(r, r));
+            Resolution.Choices.AddRange(getScreenResolutions());
             _Settings.Add(Resolution);
             _Settings.Add(Setting.Optional(TAB_VIDEO, "VIDEO", "FULLSCREEN_MODE", "Display mode",
                 "Exclusive fullscreen", "ExclusiveFullScreen", "Fullscreen window", "FullScreenWindow", "Maximized window", "MaximizedWindow", "Windowed", "Windowed"));
@@ -297,9 +297,10 @@ namespace Hotd2Remake_ArcadeConfig
         }
 
         /// <summary>
-        /// Resolutions of the main screen, biggest first
+        /// Resolutions of the main screen, biggest first : "1920x1080 (16:9)" displayed, "1920x1080" written in the INI file
+        /// The screen's own resolution is marked : a resolution with another aspect ratio has black bars in a fullscreen window
         /// </summary>
-        private static List<string> getScreenResolutions()
+        private static List<KeyValuePair<string, string>> getScreenResolutions()
         {
             List<Size> Sizes = new List<Size>();
             DEVMODE Mode = new DEVMODE();
@@ -311,7 +312,37 @@ namespace Hotd2Remake_ArcadeConfig
                     Sizes.Add(s);
             }
             Sizes.Sort((a, b) => (b.Width * b.Height).CompareTo(a.Width * a.Height));
-            return Sizes.ConvertAll(s => s.Width + "x" + s.Height);
+
+            Size ScreenSize = Size.Empty;
+            if (EnumDisplaySettings(null, ENUM_CURRENT_SETTINGS, ref Mode))
+                ScreenSize = new Size(Mode.dmPelsWidth, Mode.dmPelsHeight);
+
+            return Sizes.ConvertAll(s => new KeyValuePair<string, string>(
+                s.Width + "x" + s.Height + " (" + getAspectRatio(s) + (s == ScreenSize ? ", screen" : "") + ")",
+                s.Width + "x" + s.Height));
+        }
+
+        /// <summary>
+        /// Usual names (1366x768 is 16:9 too), or the exact ratio
+        /// </summary>
+        private static string getAspectRatio(Size Resolution)
+        {
+            float Ratio = (float)Resolution.Width / Resolution.Height;
+            string[] Names = new string[] { "16:9", "16:10", "4:3", "5:4", "3:2", "5:3", "17:9", "21:9", "32:9" };
+            float[] Ratios = new float[] { 16f / 9f, 16f / 10f, 4f / 3f, 5f / 4f, 3f / 2f, 5f / 3f, 256f / 135f, 64f / 27f, 32f / 9f };
+            for (int i = 0; i < Names.Length; i++)
+            {
+                if (Math.Abs(Ratio - Ratios[i]) < 0.02f)
+                    return Names[i];
+            }
+            int a = Resolution.Width, b = Resolution.Height;
+            while (b != 0)
+            {
+                int t = a % b;
+                a = b;
+                b = t;
+            }
+            return (Resolution.Width / a) + ":" + (Resolution.Height / a);
         }
     }
 }
