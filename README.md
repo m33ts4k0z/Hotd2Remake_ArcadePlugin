@@ -11,14 +11,15 @@ Work in progress, built in stages:
 | Stage | Content | Status |
 |---|---|---|
 | 1 | Coins, credits, free play, START to play, join, continue and skip cutscenes. No in-game menu or controller hints, Esc quits | ✅ |
-| 2 | Attract mode instead of the home main menu. Arcade presentation: `LOADING...` instead of the loading screen tips, mouse cursor always hidden, no achievements (no popups during the game) | ⏳ |
+| 2 | Attract mode: title video loop with the game logo, credits text at the bottom center. Arcade presentation: `LOADING...` instead of the loading screen tips, mouse cursor always hidden, no achievements (no popups during the game) | ✅ |
 | 3 | Arcade continue countdown (9 to 0 per player) tied to credits. Arcade HUD: no score and no weapon name during the game, like the original arcade | ⏳ |
-| 4 | Name entry and high scores | ⏳ |
+| 4 | Name entry and high scores, rankings in the attract loop | ⏳ |
 | 5 | Settings tool like argonlefou's `ArcadeMod_Config` (graphics, sound, language, difficulty, starting and maximum lives...), start lamps and credits outputs for DemulShooter | ⏳ |
 
-## Features (stage 1)
+## Features
 - **Coins**: `5` / `6` add a credit (common credits pool, up to 99).
-- **Title screen**: shows `INSERT COIN(S)` / `PRESS START` with the credits, or `FREEPLAY`. START starts a new game straight away, skipping all menus. The other player can join with START at any time.
+- **Attract mode**: the title screen loops the game's videos, starting with the main one and the game logo, like argonlefou's plugin. It shows `INSERT COIN(S)` / `PRESS START` with the credits, or `FREEPLAY`, at the bottom center of the screen. START starts a new game straight away, skipping all menus. The other player can join with START at any time.
+- **Arcade presentation**: `LOADING...` instead of the gameplay tips on the loading screens, mouse cursor always hidden, no achievements (and no achievement popups during the game).
 - **Credits**: starting/joining costs `CREDITS_TO_START`, a continue costs `CREDITS_TO_CONTINUE`. They replace the game's own continue tokens. The death screen shows the credits and only offers to continue when there are enough.
 - **No credits left**: the game's own 10 s countdown runs, then it's game over and back to the title screen.
 - **START** also validates the READY screen at the beginning of each chapter, and holding it skips cutscenes ("HOLD START TO SKIP!").
@@ -53,6 +54,7 @@ To uninstall, remove these two files. The home save file is never modified while
 | `SCORE_MODE` | `Classic` | `Classic` or `Modern` |
 | `DISABLE_MAIN_MENU` | `1` | `0` = any input other than START still opens the game's menu (settings...) |
 | `SAVE_IN_GAME_FOLDER` | `1` | `0` = use the normal save file |
+| `HIDE_CURSOR` | `1` | `0` = show the mouse cursor (to use the game's menus with `DISABLE_MAIN_MENU=0`) |
 
 ## Building
 Visual Studio 2019 or later (or MSBuild 16+), .NET Framework 4.8.

@@ -80,6 +80,10 @@
       <HintPath>UnityLibs\UnityEngine.UIModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="UnityEngine.VideoModule">
+      <HintPath>UnityLibs\UnityEngine.VideoModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ArcadeOverlay.cs" />
@@ -89,11 +93,14 @@
     <Compile Include="LanguageStrings.cs" />
     <Compile Include="Patch\mCR_CutsceneUI.cs" />
     <Compile Include="Patch\mCR_DeathScreenManager.cs" />
+    <Compile Include="Patch\mCR_GameplayTipsManager.cs" />
     <Compile Include="Patch\mCR_MainMenuMovieController.cs" />
     <Compile Include="Patch\mCR_Player.cs" />
     <Compile Include="Patch\mCR_PlayerDeathScreen.cs" />
     <Compile Include="Patch\mHD_SkipController.cs" />
     <Compile Include="Patch\mHD_SkipView.cs" />
+    <Compile Include="Patch\mMP_AchievementsHandler.cs" />
+    <Compile Include="Patch\mMP_CursorSetterModule.cs" />
     <Compile Include="Patch\mMP_GameManager.cs" />
     <Compile Include="Patch\mMP_HintsManager.cs" />
     <Compile Include="Patch\mMP_InputManager.cs" />

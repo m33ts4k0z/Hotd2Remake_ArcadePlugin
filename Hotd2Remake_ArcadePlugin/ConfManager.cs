@@ -30,6 +30,9 @@ namespace Hotd2Remake_ArcadePlugin
         //Separate save file in the game folder, so that the arcade games don't overwrite the home save
         public bool SaveInGameFolder { get; private set; }
 
+        //Mouse cursor always hidden, like argonlefou's House of the Dead Remake Arcade Plugin
+        public bool HideCursor { get; private set; }
+
         public ConfManager()
         {
             Freeplay = false;
@@ -43,6 +46,7 @@ namespace Hotd2Remake_ArcadePlugin
             GameScoreMode = ScoreMode.Classic;
             DisableMainMenu = true;
             SaveInGameFolder = true;
+            HideCursor = true;
         }
 
         public void ReadConf(string ConfigFilePath)
@@ -70,9 +74,10 @@ namespace Hotd2Remake_ArcadePlugin
             GameScoreMode = ReadEnum(IniFile, "GAME", "SCORE_MODE", GameScoreMode);
             DisableMainMenu = ReadBool(IniFile, "GAME", "DISABLE_MAIN_MENU", DisableMainMenu);
             SaveInGameFolder = ReadBool(IniFile, "GAME", "SAVE_IN_GAME_FOLDER", SaveInGameFolder);
+            HideCursor = ReadBool(IniFile, "GAME", "HIDE_CURSOR", HideCursor);
 
             Hotd2r_ArcadePlugin.MyLogger.LogMessage("ConfManager.ReadConf() => Freeplay=" + Freeplay + ", CreditsToStart=" + CreditsToStart + ", CreditsToContinue=" + CreditsToContinue
-                + ", Mode=" + Mode + ", Difficulty=" + GameDifficulty + ", ScoreMode=" + GameScoreMode + ", DisableMainMenu=" + DisableMainMenu + ", SaveInGameFolder=" + SaveInGameFolder);
+                + ", Mode=" + Mode + ", Difficulty=" + GameDifficulty + ", ScoreMode=" + GameScoreMode + ", DisableMainMenu=" + DisableMainMenu + ", SaveInGameFolder=" + SaveInGameFolder + ", HideCursor=" + HideCursor);
         }
 
         private static bool ReadBool(INIFile IniFile, string Section, string Key, bool Default)
