@@ -86,6 +86,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ArcadeOutputs.cs" />
     <Compile Include="ArcadeOverlay.cs" />
     <Compile Include="ArcadeRanking.cs" />
     <Compile Include="ConfManager.cs" />
@@ -114,6 +115,7 @@
     <Compile Include="Patch\mMP_HintsManager.cs" />
     <Compile Include="Patch\mMP_InputManager.cs" />
     <Compile Include="Patch\mMP_PlayerInput.cs" />
+    <Compile Include="Patch\mMP_SaveDataHandler.cs" />
     <Compile Include="Patch\mMP_SaveLoad.cs" />
     <Compile Include="PluginControllerButton.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

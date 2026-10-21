@@ -48,6 +48,8 @@ namespace Hotd2Remake_ArcadePlugin
         private static bool _IsLoadingNewGame = false;
         //Reviving a player who is joining the game again : it is paid as a new player, not as a continue (see mCR_Player)
         public static bool IsJoiningGame = false;
+        //Title screen without sound (ATTRACT_SOUND=0)
+        private static bool _IsAttractMuted = false;
 
         //Title screen, set by mCR_MainMenuMovieController
         public static CR_MainMenuMovieController TitleScreen = null;
@@ -95,6 +97,15 @@ namespace Hotd2Remake_ArcadePlugin
         {
             UpdateLanguage();
             mCR_CutsceneUI.ReplaceSkipHintIcon();
+            ArcadeOutputs.Update();
+
+            //Title screen without sound, like argonlefou's House of the Dead Remake Arcade Plugin
+            bool IsAttractMuted = !Configurator.AttractSound && MP_SaveDataHandler.Settings != null && IsOnTitleScreen();
+            if (IsAttractMuted != _IsAttractMuted && MP_SaveDataHandler.Settings != null)
+            {
+                _IsAttractMuted = IsAttractMuted;
+                MP_SoundSettingsHandler.ToggleMuteMaster(IsAttractMuted || MP_SaveDataHandler.Settings.MuteMasterVolume);
+            }
 
             for (int i = 0; i < MAX_PLAYERS; i++)
             {
@@ -386,6 +397,7 @@ namespace Hotd2Remake_ArcadePlugin
             }
             harmony.Patch(HandleStartButton, new HarmonyMethod(typeof(Hotd2r_ArcadePlugin), "SkipDemulShooterStartButton"));
             MyLogger.LogMessage("Hotd2Remake_ArcadePlugin.TakeOverDemulShooterStartButtons() => START buttons now handled by the Arcade plugin");
+            ArcadeOutputs.Init(DsPlugin.Instance);
         }
 
         private static bool SkipDemulShooterStartButton()

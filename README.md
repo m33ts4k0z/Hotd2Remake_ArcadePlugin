@@ -6,7 +6,7 @@ This BepInEx plugin turns the home game into an arcade cabinet experience: coins
 It is based on [argonlefou](https://github.com/argonlefou)'s [House of the Dead Remake Arcade Plugin](https://github.com/argonlefou/HotdRemake_ArcadePlugin) for the first game: same design, and some of its code (texts and their translations, credits handling).
 
 ## Status
-Work in progress, built in stages:
+Built in stages, all done:
 
 | Stage | Content | Status |
 |---|---|---|
@@ -14,7 +14,7 @@ Work in progress, built in stages:
 | 2 | Attract mode: title video loop with the game logo, credits text at the bottom center. Arcade presentation: `LOADING...` instead of the loading screen tips, mouse cursor always hidden, no achievements (no popups during the game) | ✅ |
 | 3 | Arcade continue countdown (9 to 0 per player, GAME OVER per player) tied to credits. Arcade HUD: no score and no weapon name during the game, like the original arcade | ✅ |
 | 4 | Name entry and high scores, rankings in the attract loop. Chapter results and end of game screens validated with START | ✅ |
-| 5 | Settings tool like argonlefou's `ArcadeMod_Config` (graphics, sound, language, difficulty, starting and maximum lives...), start lamps and credits outputs for DemulShooter | ⏳ |
+| 5 | Settings tool like argonlefou's `ArcadeMod_Config` (video, sound, language, difficulty, life torches...), START lamps and credits outputs for DemulShooter | ✅ |
 
 ## Features
 - **Coins**: `5` / `6` add a credit (common credits pool, up to 99).
@@ -34,23 +34,26 @@ Work in progress, built in stages:
   - **Default ranking**: like an arcade cabinet, an empty ranking is filled with a default top 10 (50000 to 5000 points). Only in the arcade save of the game folder (`SAVE_IN_GAME_FOLDER=1`), the home save is never modified.
 - **No READY screen**: like argonlefou's plugin, each chapter starts straight after its loading screen. Holding START skips cutscenes ("HOLD START TO SKIP!").
 - **Like an arcade cabinet** (and argonlefou's plugin): no in-game pause menu, no controller hints (keyboard/gamepad icons) in menus and on the death screen, no pause when the game window loses the focus. `Esc` quits the game.
-- Game settings (graphics, sound, language...) are not available in game. They are taken from the save file: set `DISABLE_MAIN_MENU=0` to reach the game's own Options menu from the title screen if needed. A settings tool like argonlefou's `ArcadeMod_Config` is planned for stage 5.
+- **Settings tool** (`Hotd2Remake_ArcadeConfig.exe`), like argonlefou's `ArcadeMod_Config`: the game's own option menus are not available in the arcade mode, so the video, sound, language and life torches settings are set in the plugin's INI file and replace the ones of the save when the game starts. Each one can also be left to `(game setting)`.
+- **Title screen sound** can be turned off (`ATTRACT_SOUND=0`), like argonlefou's plugin.
+- **START lamps and credits** for DemulShooter (`P1_LmpStart`, `P2_LmpStart` and `Credits` outputs, for MameHooker or QMamehook): a lamp blinks when its player can press START (start a game, join, continue, go on to the next screen), like argonlefou's plugin.
 - **Separate save file** in the game folder (`NVRAM\saveData.sav`), so that the arcade games don't change the home save. On first run, the home save is copied there to keep the settings and unlocked items.
 - Texts follow the game's language.
 
 Games are always started as a **Multiplayer** campaign (the only mode where a second player can join), in Competitive mode (separate scores, like the arcade).
 
 ## Lightguns
-The plugin works with a mouse/keyboard, but it is made to be used with [DemulShooter](https://github.com/argonlefou/DemulShooter) and its House of the Dead 2 Remake plugin (`-target=windows -rom=hotd2r`), which handles the two guns, recoil, rumble and crosshairs. When both plugins are installed, the START buttons are handled by this one.
+The plugin works with a mouse/keyboard, but it is made to be used with [DemulShooter](https://github.com/argonlefou/DemulShooter) and its House of the Dead 2 Remake plugin (`-target=windows -rom=hotd2r`), which handles the two guns, recoil, rumble and crosshairs. When both plugins are installed, the START buttons are handled by this one, and the START lamps and credits are sent to DemulShooter by its plugin (if it has these outputs).
 
 ## Installation
 1. Install BepInEx 5 (x64) in the game folder, next to `THE HOUSE OF THE DEAD 2 Remake.exe` (DemulShooter's HOTD2 Remake package already contains it).
 2. Copy `Hotd2Remake_ArcadePlugin.dll` and `Hotd2Remake_ArcadePlugin.ini` to `BepInEx\plugins\`.
+3. Copy `Hotd2Remake_ArcadeConfig.exe` next to the game's exe, to change the settings.
 
-To uninstall, remove these two files. The home save file is never modified while the plugin is installed.
+To uninstall, remove these files. The home save file is never modified while the plugin is installed.
 
 ## Configuration
-`BepInEx\plugins\Hotd2Remake_ArcadePlugin.ini`:
+`BepInEx\plugins\Hotd2Remake_ArcadePlugin.ini`, or `Hotd2Remake_ArcadeConfig.exe`:
 
 | Setting | Default | |
 |---|---|---|
@@ -66,9 +69,27 @@ To uninstall, remove these two files. The home save file is never modified while
 | `SAVE_IN_GAME_FOLDER` | `1` | `0` = use the normal save file |
 | `HIDE_CURSOR` | `1` | `0` = show the mouse cursor (to use the game's menus with `DISABLE_MAIN_MENU=0`) |
 | `ARCADE_HUD` | `1` | `0` = the game's own HUD, with the score and the weapon name |
+| `ATTRACT_SOUND` | `1` | `0` = no sound on the title screen |
+
+Game settings, replacing the ones of the save when the game starts. Empty = the game's own setting:
+
+| Setting | Values |
+|---|---|
+| `LIVES` | Life torches, `1` to `6` (the game's default is 3) |
+| `LANGUAGE` | `English`, `French`, `German`, `Italian`, `Spanish`, `Portuguese`, `Polish`, `Japanese` or `Chinese` |
+| `RESOLUTION` | Width x height, for example `1920x1080` |
+| `FULLSCREEN_MODE` | `ExclusiveFullScreen`, `FullScreenWindow`, `MaximizedWindow` or `Windowed` |
+| `VSYNC` | `Off`, `EveryVBlank` or `EverySecondVBlank` |
+| `ANTI_ALIASING` | `Off`, `SMAA` or `TAA` |
+| `SHADOW_QUALITY` | `Low`, `Medium` or `High` |
+| `BLOOM`, `MOTION_BLUR`, `AMBIENT_OCCLUSION` | `1` = on, `0` = off |
+| `BRIGHTNESS` | `0` to `100` |
+| `HUD_SCALE` | `50` to `150` (%) |
+| `MASTER_VOLUME`, `MUSIC_VOLUME`, `EFFECTS_VOLUME`, `UI_VOLUME`, `DIALOGS_VOLUME`, `SHOT_VOLUME` | `0` to `100` |
+| `CLASSIC_MUSIC` | `1` = the original House of the Dead 2 music |
 
 ## Building
-Visual Studio 2019 or later (or MSBuild 16+), .NET Framework 4.8.
+Visual Studio 2019 or later (or MSBuild 16+), .NET Framework 4.8. The solution has two projects: the plugin, and the settings tool (WinForms).
 Copy the game DLLs listed in `Hotd2Remake_ArcadePlugin\UnityLibs\List_of_dll_to_copy_here.txt` to that folder first (they are not part of this repository).
 
 The Debug build adds test keys: `F5` / `F6` kill P1 / P2, `F7` finishes the current chapter, `F8` goes to the last chapter and `F9` gives 100000 points to P1, to check the continue, results, name entry and ending screens without playing the whole game.
