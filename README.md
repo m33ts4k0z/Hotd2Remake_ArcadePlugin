@@ -46,9 +46,11 @@ Games are always started as a **Multiplayer** campaign (the only mode where a se
 The plugin works with a mouse/keyboard, but it is made to be used with [DemulShooter](https://github.com/argonlefou/DemulShooter) and its House of the Dead 2 Remake plugin (`-target=windows -rom=hotd2r`), which handles the two guns, recoil, rumble and crosshairs. When both plugins are installed, the START buttons are handled by this one, and the START lamps and credits are sent to DemulShooter by its plugin (if it has these outputs).
 
 ## Installation
-1. Install BepInEx 5 (x64) in the game folder, next to `THE HOUSE OF THE DEAD 2 Remake.exe` (DemulShooter's HOTD2 Remake package already contains it).
+1. Install [BepInEx 5](https://github.com/BepInEx/BepInEx/releases) in the game folder, next to `THE HOUSE OF THE DEAD 2 Remake.exe`: unzip its `BepInEx_win_x64_5.4.*.zip` file there (DemulShooter's HOTD2 Remake package already contains it). Start the game once to let BepInEx create its folders.
 2. Copy `Hotd2Remake_ArcadePlugin.dll` and `Hotd2Remake_ArcadePlugin.ini` to `BepInEx\plugins\`.
 3. Copy `Hotd2Remake_ArcadeConfig.exe` next to the game's exe, to change the settings.
+
+The zip of each [release](../../releases) already has this layout: unzip it in the game folder for steps 2 and 3.
 
 To uninstall, remove these files. The home save file is never modified while the plugin is installed.
 

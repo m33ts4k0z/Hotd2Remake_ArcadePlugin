@@ -113,7 +113,10 @@ jobs:
           $range = if ($prev) { "$prev..HEAD" } else { 'HEAD' }
           $repoUrl = "$env:GITHUB_SERVER_URL/$env:GITHUB_REPOSITORY"
 
-          $notes = @('Unzip in the game folder, next to `THE HOUSE OF THE DEAD 2 Remake.exe` (BepInEx 5 x64 is needed, see the README).', '')
+          $notes = @(
+            'Unzip in the game folder, next to `THE HOUSE OF THE DEAD 2 Remake.exe`.',
+            'Needs [BepInEx 5](https://github.com/BepInEx/BepInEx/releases) installed there first (the `BepInEx_win_x64_5.4.*.zip` file), see the README.',
+            '')
           foreach ($sha in git log --format=%H $range) {
             $subject = git log -1 --format=%s $sha
             $body = git log -1 --format=%b $sha | Where-Object { $_ -notmatch '^(Co-Authored-By|Signed-off-by):' }
