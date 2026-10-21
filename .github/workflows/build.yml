@@ -1,19 +1,47 @@
-# Builds the plugin and the settings tool (Debug and Release) on every push,
-# the Release files are kept as an artifact laid out like the game folder
+# Builds the plugin and the settings tool (Debug and Release) once a day, only if main has commits
+# that were not built successfully yet. "Run workflow" in the Actions tab always builds.
+# The Release files are kept as an artifact laid out like the game folder
 name: Build
 
 on:
-  push:
-  pull_request:
+  schedule:
+    - cron: '17 3 * * *'
   workflow_dispatch:
 
-# A newer push on the same branch cancels the build still running
 concurrency:
   group: build-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  # Cheap Linux job : the Windows build is skipped when there is nothing new
+  check:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+    outputs:
+      changed: ${{ steps.check.outputs.changed }}
+    steps:
+      - id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ "$GITHUB_EVENT_NAME" != "schedule" ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          last=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow build.yml --branch "$GITHUB_REF_NAME" --status success --limit 1 --json headSha --jq '.[0].headSha // ""')
+          echo "Last successful run: ${last:-none}, now: $GITHUB_SHA"
+          if [ "$last" = "$GITHUB_SHA" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No new commits since the last build" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
   build:
+    needs: check
+    if: needs.check.outputs.changed == 'true'
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v5
