@@ -10,11 +10,11 @@ Work in progress, built in stages:
 
 | Stage | Content | Status |
 |---|---|---|
-| 1 | Coins, credits, free play, START to play, join and continue | ✅ |
-| 2 | Attract mode instead of the home main menu | ⏳ |
-| 3 | Arcade continue countdown tied to credits | ⏳ |
+| 1 | Coins, credits, free play, START to play, join, continue and skip cutscenes. No in-game menu or controller hints, Esc quits | ✅ |
+| 2 | Attract mode instead of the home main menu. Arcade presentation: `LOADING...` instead of the loading screen tips, mouse cursor always hidden, no achievements (no popups during the game) | ⏳ |
+| 3 | Arcade continue countdown (9 to 0 per player) tied to credits. Arcade HUD: no score and no weapon name during the game, like the original arcade | ⏳ |
 | 4 | Name entry and high scores | ⏳ |
-| 5 | Lamps / credits outputs, more settings | ⏳ |
+| 5 | Settings tool like argonlefou's `ArcadeMod_Config` (graphics, sound, language, difficulty, starting and maximum lives...), start lamps and credits outputs for DemulShooter | ⏳ |
 
 ## Features (stage 1)
 - **Coins**: `5` / `6` add a credit (common credits pool, up to 99).
