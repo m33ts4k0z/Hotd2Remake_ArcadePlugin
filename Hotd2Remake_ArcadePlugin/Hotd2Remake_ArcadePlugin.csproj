@@ -94,6 +94,8 @@
     <Compile Include="Patch\mCR_PlayerDeathScreen.cs" />
     <Compile Include="Patch\mHD_SkipController.cs" />
     <Compile Include="Patch\mHD_SkipView.cs" />
+    <Compile Include="Patch\mMP_GameManager.cs" />
+    <Compile Include="Patch\mMP_HintsManager.cs" />
     <Compile Include="Patch\mMP_InputManager.cs" />
     <Compile Include="Patch\mMP_PlayerInput.cs" />
     <Compile Include="Patch\mMP_SaveLoad.cs" />

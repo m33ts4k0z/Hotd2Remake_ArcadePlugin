@@ -17,6 +17,7 @@ namespace Hotd2Remake_ArcadePlugin
         //Keys, as legacy Unity KeyCode values
         public int[] StartKeys { get; private set; }
         public int[] CoinKeys { get; private set; }
+        public int ExitKey { get; private set; }
 
         //Game started with START from the title screen
         public CampaignMode Mode { get; private set; }
@@ -36,6 +37,7 @@ namespace Hotd2Remake_ArcadePlugin
             CreditsToContinue = 1;
             StartKeys = new int[] { 49, 50 };   //1, 2
             CoinKeys = new int[] { 53, 54 };    //5, 6
+            ExitKey = 27;                       //Escape, like argonlefou's House of the Dead Remake Arcade Plugin
             Mode = CampaignMode.Original;
             GameDifficulty = Difficulty.Normal;
             GameScoreMode = ScoreMode.Classic;
@@ -61,6 +63,7 @@ namespace Hotd2Remake_ArcadePlugin
                 StartKeys[i] = ReadInt(IniFile, "INPUT_KEYS", "P" + (i + 1) + "_START", StartKeys[i], 0, 1000);
                 CoinKeys[i] = ReadInt(IniFile, "INPUT_KEYS", "P" + (i + 1) + "_COIN", CoinKeys[i], 0, 1000);
             }
+            ExitKey = ReadInt(IniFile, "INPUT_KEYS", "EXIT", ExitKey, 0, 1000);
 
             Mode = ReadEnum(IniFile, "GAME", "MODE", Mode);
             GameDifficulty = ReadEnum(IniFile, "GAME", "DIFFICULTY", GameDifficulty);

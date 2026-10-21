@@ -39,6 +39,7 @@ namespace Hotd2Remake_ArcadePlugin
 
         private static PluginControllerButton[] _StartButtons = new PluginControllerButton[MAX_PLAYERS];
         private static PluginControllerButton[] _CoinButtons = new PluginControllerButton[MAX_PLAYERS];
+        private static PluginControllerButton _ExitButton;
 
         //Players who have paid to play the current game
         public static bool[] IsPlayerPlaying = new bool[MAX_PLAYERS];
@@ -77,6 +78,7 @@ namespace Hotd2Remake_ArcadePlugin
                 //Credits are replacing the game's own continue tokens
                 CR_Data.UNLIMITED_CREDITS_ENABLED_FROM_CONTROL_PANEL[i] = true;
             }
+            _ExitButton = new PluginControllerButton(Configurator.ExitKey);
 
             NvramFolder = Paths.GameRootPath + "/NVRAM";
             if (Configurator.SaveInGameFolder)
@@ -98,6 +100,14 @@ namespace Hotd2Remake_ArcadePlugin
             {
                 _StartButtons[i].SetButton(GetKey(_StartButtons[i].KeyCode));
                 _CoinButtons[i].SetButton(GetKey(_CoinButtons[i].KeyCode));
+            }
+
+            //No in-game menu (see mMP_GameManager) : quitting directly, like argonlefou's House of the Dead Remake Arcade Plugin
+            _ExitButton.SetButton(GetKey(_ExitButton.KeyCode));
+            if (_ExitButton.GetButtonDown())
+            {
+                MyLogger.LogMessage("Hotd2Remake_ArcadePlugin.Update() => EXIT key pressed, quitting");
+                Application.Quit();
             }
 
             //Coins are going in a common credits pool, like most arcade cabinets

@@ -21,7 +21,9 @@ Work in progress, built in stages:
 - **Title screen**: shows `INSERT COIN(S)` / `PRESS START` with the credits, or `FREEPLAY`. START starts a new game straight away, skipping all menus. The other player can join with START at any time.
 - **Credits**: starting/joining costs `CREDITS_TO_START`, a continue costs `CREDITS_TO_CONTINUE`. They replace the game's own continue tokens. The death screen shows the credits and only offers to continue when there are enough.
 - **No credits left**: the game's own 10 s countdown runs, then it's game over and back to the title screen.
-- **START** also validates the READY screen at the beginning of each chapter.
+- **START** also validates the READY screen at the beginning of each chapter, and holding it skips cutscenes ("HOLD START TO SKIP!").
+- **Like an arcade cabinet** (and argonlefou's plugin): no in-game pause menu, no controller hints (keyboard/gamepad icons) in menus and on the death screen, no pause when the game window loses the focus. `Esc` quits the game.
+- Game settings (graphics, sound, language...) are not available in game. They are taken from the save file: set `DISABLE_MAIN_MENU=0` to reach the game's own Options menu from the title screen if needed. A settings tool like argonlefou's `ArcadeMod_Config` is planned for stage 5.
 - **Separate save file** in the game folder (`NVRAM\saveData.sav`), so that the arcade games don't change the home save. On first run, the home save is copied there to keep the settings and unlocked items.
 - Texts follow the game's language.
 
@@ -45,6 +47,7 @@ To uninstall, remove these two files. The home save file is never modified while
 | `CREDITS_TO_START` / `CREDITS_TO_CONTINUE` | `1` | 1 to 9 |
 | `P1_START` / `P2_START` | `49` / `50` | Unity KeyCode values (`1` / `2`) |
 | `P1_COIN` / `P2_COIN` | `53` / `54` | Unity KeyCode values (`5` / `6`) |
+| `EXIT` | `27` | Quits the game (`Esc`), `0` = disabled |
 | `MODE` | `Original` | `Original`, `Arcade` or `Horde` (the game's own modes) |
 | `DIFFICULTY` | `Normal` | `VeryEasy` to `VeryHard` |
 | `SCORE_MODE` | `Classic` | `Classic` or `Modern` |
