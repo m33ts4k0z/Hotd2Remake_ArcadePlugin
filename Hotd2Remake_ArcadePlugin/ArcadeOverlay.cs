@@ -42,13 +42,13 @@ namespace Hotd2Remake_ArcadePlugin
                 createCanvas();
             }
 
-            bool IsInGame = CR_LevelLoader.IsGameplayChapterLoaded && !CR_LevelLoader.IsLoadingScreenVisible;
+            bool IsInGame = CR_LevelLoader.IsGameplayChapterLoaded && !CR_LevelLoader.IsLoadingScreenVisible && !EndOfGameScreens.IsFullScreenMenuActive();
             _Canvas.enabled = IsInGame;
             if (!IsInGame)
                 return;
 
-            //Joining is only possible in a Multiplayer campaign
-            bool CanJoin = MP_SaveDataHandler.IsReady && MP_SaveDataHandler.LastPlayedCampaign != null && MP_SaveDataHandler.LastPlayedCampaign.IsMultiplayerCampaign;
+            //Joining is only possible in a Multiplayer campaign, and not after the game over
+            bool CanJoin = MP_SaveDataHandler.IsReady && MP_SaveDataHandler.LastPlayedCampaign != null && MP_SaveDataHandler.LastPlayedCampaign.IsMultiplayerCampaign && !MP_GameManager.IsGameplayFinished;
             float BlinkAlpha = getBlinkAlpha();
             for (int i = 0; i < Hotd2r_ArcadePlugin.MAX_PLAYERS; i++)
             {

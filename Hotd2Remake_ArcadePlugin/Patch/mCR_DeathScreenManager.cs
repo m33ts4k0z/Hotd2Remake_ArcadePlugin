@@ -20,6 +20,19 @@ namespace Hotd2Remake_ArcadePlugin
         }
 
         /// <summary>
+        /// GAME OVER : the name entry will be displayed after the game over map, if the score is good enough for the ranking (see ArcadeRanking)
+        /// </summary>
+        [HarmonyPatch(typeof(CR_DeathScreenManager), "handleGameOver")]
+        class handleGameOver
+        {
+            static void Postfix()
+            {
+                if (CR_DeathScreenManager.IsGameOver && Hotd2r_ArcadePlugin.IsArcadeGameRunning && ArcadeRanking.Instance != null)
+                    ArcadeRanking.Instance.OnGameOver();
+            }
+        }
+
+        /// <summary>
         /// The game's own 10 seconds timer (only running when all players are dead) is replaced by the arcade countdown (see ContinueCountdown)
         /// Still used for a game started from the game's own menus
         /// </summary>

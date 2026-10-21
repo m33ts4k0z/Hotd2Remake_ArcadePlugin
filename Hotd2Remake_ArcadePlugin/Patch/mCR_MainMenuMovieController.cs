@@ -18,6 +18,7 @@ namespace Hotd2Remake_ArcadePlugin
     {
         private static AccessTools.FieldRef<CR_SimplePressAnyKeyDisplay, TMP_Text> _PressAnyKeyText = AccessTools.FieldRefAccess<CR_SimplePressAnyKeyDisplay, TMP_Text>("textField");
         private static MethodInfo _SetVideo = AccessTools.Method(typeof(CR_MainMenuMovieController), "setVideo");
+        private static MethodInfo _SwapVideo = AccessTools.Method(typeof(CR_MainMenuMovieController), "swapVideo");
 
         //Game logo, the same as in the game's main menu
         private const string LOGO_SPRITE_NAME = "sp_ui_LogoRender";
@@ -66,9 +67,31 @@ namespace Hotd2Remake_ArcadePlugin
                         Hotd2r_ArcadePlugin.GameFontMaterial = Text.fontSharedMaterial;
                     }
                     Text.text = Hotd2r_ArcadePlugin.GetScreenPlayerString(Hotd2r_ArcadePlugin.Configurator.CreditsToStart);
+                    //The ranking has its own text
+                    Text.alpha = ArcadeRanking.Instance != null && ArcadeRanking.Instance.IsAttractRankingActive ? 0f : 1f;
                 }
 
                 return !Hotd2r_ArcadePlugin.Configurator.DisableMainMenu;
+            }
+        }
+
+        /// <summary>
+        /// Like argonlefou's plugin : the ranking is displayed between the videos, at the end of the main one.
+        /// The next video is started once it is closed
+        /// </summary>
+        [HarmonyPatch(typeof(CR_MainMenuMovieController), "onVideoPlayerLoopPointReached")]
+        class onVideoPlayerLoopPointReached
+        {
+            static bool Prefix(CR_MainMenuMovieController __instance, MP_VideoPlayerController ___mainMenuVideoController, VideoClip ___mainVideoClip)
+            {
+                if (!Hotd2r_ArcadePlugin.IsOnTitleScreen() || ___mainMenuVideoController == null || ___mainMenuVideoController.CurrentVideoClip != ___mainVideoClip || _SwapVideo == null || ArcadeRanking.Instance == null)
+                    return true;
+
+                return !ArcadeRanking.Instance.ShowAttractRanking(delegate
+                {
+                    if (__instance != null)
+                        _SwapVideo.Invoke(__instance, null);
+                });
             }
         }
 

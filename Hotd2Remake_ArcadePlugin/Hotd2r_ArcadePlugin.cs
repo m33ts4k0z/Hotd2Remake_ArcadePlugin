@@ -88,6 +88,7 @@ namespace Hotd2Remake_ArcadePlugin
             TakeOverDemulShooterStartButtons(harmony);
 
             gameObject.AddComponent<ArcadeOverlay>();
+            gameObject.AddComponent<ArcadeRanking>();
         }
 
         public void Update()
@@ -123,7 +124,7 @@ namespace Hotd2Remake_ArcadePlugin
             }
 
 #if DEBUG
-            //Test keys : F5 / F6 are killing P1 / P2
+            //Test keys : F5 / F6 are killing P1 / P2, F7 is finishing the chapter, F8 is going to the last chapter, F9 is giving 100000 points to P1
             if (Keyboard.current != null)
             {
                 for (int i = 0; i < MAX_PLAYERS; i++)
@@ -131,10 +132,32 @@ namespace Hotd2Remake_ArcadePlugin
                     if ((i == 0 ? Keyboard.current.f5Key : Keyboard.current.f6Key).wasPressedThisFrame && CR_Player.Players[i] != null && CR_Player.Players[i].IsActivated)
                         CR_Player.Players[i].Kill();
                 }
+                if (Keyboard.current.f7Key.wasPressedThisFrame && CR_LevelLoader.IsGameplayChapterLoaded)
+                {
+                    CR_LevelFinishTrigger Trigger = FindObjectOfType<CR_LevelFinishTrigger>();
+                    if (Trigger != null)
+                        Trigger.Show();
+                }
+                if (Keyboard.current.f8Key.wasPressedThisFrame && CR_LevelLoader.IsGameplayChapterLoaded)
+                {
+                    MP_SaveDataHandler.LastPlayedCampaign.SetCurrentChapter(Chapter.Ch6_OriginalSin);
+                    MP_GameManager.LevelAborted();
+                    CR_LevelLoader.LoadGameplayLevel(Chapter.Ch6_OriginalSin);
+                }
+                if (Keyboard.current.f9Key.wasPressedThisFrame)
+                    CR_ScoreManager.AddDebugPoints(PlayerType.Player1, 100000);
             }
 #endif
 
-            if (IsOnTitleScreen())
+            //Chapter results, end of the game, name entry and ranking : START is validating them
+            if (EndOfGameScreens.IsActive())
+            {
+                bool StartPressed = false;
+                for (int i = 0; i < MAX_PLAYERS; i++)
+                    StartPressed |= _StartButtons[i].GetButtonDown();
+                EndOfGameScreens.Update(StartPressed);
+            }
+            else if (IsOnTitleScreen())
             {
                 //Back on the title screen after a game : nobody is playing anymore
                 if (!_IsLoadingNewGame)
@@ -238,6 +261,7 @@ namespace Hotd2Remake_ArcadePlugin
                 {
                     _IsLoadingNewGame = true;
                     IsArcadeGameRunning = true;
+                    ArcadeRanking.Instance.Reset();
                 }
                 else
                 {
