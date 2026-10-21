@@ -92,6 +92,7 @@ namespace Hotd2Remake_ArcadePlugin
         public void Update()
         {
             UpdateLanguage();
+            mCR_CutsceneUI.ReplaceSkipHintIcon();
 
             for (int i = 0; i < MAX_PLAYERS; i++)
             {
@@ -162,6 +163,16 @@ namespace Hotd2Remake_ArcadePlugin
         }
 
         #region START buttons
+
+        public static bool IsAnyStartHeld()
+        {
+            for (int i = 0; i < MAX_PLAYERS; i++)
+            {
+                if (_StartButtons[i].GetButton())
+                    return true;
+            }
+            return false;
+        }
 
         public static bool CanPay(int Credits)
         {
