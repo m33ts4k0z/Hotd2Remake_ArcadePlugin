@@ -1,49 +1,29 @@
 # Hotd2Remake_ArcadePlugin
+<!-- Screenshots, like argonlefou's README: drag the 2 images in GitHub's editor to get their links, put them in src and remove this comment
+<p align="center">
+  <img align="left" width="400" src="SCREENSHOT_1_LINK">
+  <img width="400" src="SCREENSHOT_2_LINK">
+</p>
+-->
+Arcade Plugin for "THE HOUSE OF THE DEAD 2: Remake" game on Windows  
+This UNITY plugin will modify the game in order to make it as close as possible to the original arcade version.  
+Based on argonlefou's [House Of The Dead Remake Arcade Plugin](https://github.com/argonlefou/HotdRemake_ArcadePlugin).
+<br>
+<br>
 
-Arcade Plugin for **THE HOUSE OF THE DEAD 2: Remake** (Steam) on Windows.
-This BepInEx plugin turns the home game into an arcade cabinet experience: coins and credits, START buttons, arcade continues.
-
-It is based on [argonlefou](https://github.com/argonlefou)'s [House of the Dead Remake Arcade Plugin](https://github.com/argonlefou/HotdRemake_ArcadePlugin) for the first game: same design, and some of its code (texts and their translations, credits handling).
-
-## Features
-- **Coins**: `5` / `6` add a credit (common credits pool, up to 99).
-- **Attract mode**: the title screen loops the game's videos, starting with the main one and the game logo, like argonlefou's plugin. It shows `INSERT COIN(S)` / `PRESS START` with the credits, or `FREEPLAY`, at the bottom center of the screen. START starts a new game straight away, skipping all menus. The other player can join with START at any time.
-- **Arcade presentation**: `LOADING...` instead of the gameplay tips on the loading screens, mouse cursor always hidden, no achievements (and no achievement popups during the game).
-- **Credits**: starting/joining costs `CREDITS_TO_START`, a continue costs `CREDITS_TO_CONTINUE`. They replace the game's own continue tokens.
-- **Continue countdown**, like argonlefou's plugin (it replaces the game's own 10 s timer). The game's death screen boxes (continue and buy buttons, tokens, credits used) are hidden: only `CONTINUE ?` with the countdown, and a fading `PRESS START` under it (`INSERT COIN(S)` when there are not enough credits).
-  - a player dies while the other one is still playing: `9` to `0` on his side of the screen, then `GAME OVER` for him. His side then shows `PRESS START` / `INSERT COIN(S)`, and joining again costs `CREDITS_TO_START`.
-  - all players are dead: `9` to `0` in the middle of the screen, then game over and back to the title screen.
-  - inserting a coin restarts the countdowns from `9`. They are paused during cutscenes.
-- **Arcade HUD**: no score (and no points flying to it) and no weapon name during the game, like the original arcade. The life torches, the weapon icon and the ammo are still displayed.
-- **Chapter results**: no restart, chapter selection, main menu or exit buttons. `START` (or 20 s) goes on to the next chapter.
-- **High scores**: the game's own local leaderboard (the one of `MODE` and `SCORE_MODE`), one entry per game with the total score of both players, like the game.
-  - **Game over**: the game itself goes straight back to the main menu. If the score is in the top 10, an arcade name entry is displayed instead: shoot the letters with any gun (the guns are the mouse outside of the gameplay), `END` or `START` to save (30 s timer, `AMS` if empty). Then the ranking is displayed, with the new entry highlighted.
-  - **Game completed**: the game's own screens (results, agent rank, name on the typewriter, leaderboard, credits and ending). `START` (or a timer) goes on to the next one. On the typewriter, the keys are shot with the guns and `START` saves the name.
-  - **Attract mode**: the ranking is displayed for 10 s after the main video of the title screen, like argonlefou's plugin.
-  - **Default ranking**: like an arcade cabinet, an empty ranking is filled with a default top 10 (50000 to 5000 points). Only in the arcade save of the game folder (`SAVE_IN_GAME_FOLDER=1`), the home save is never modified.
-- **No READY screen**: like argonlefou's plugin, each chapter starts straight after its loading screen. Holding START skips cutscenes ("HOLD START TO SKIP!").
-- **Like an arcade cabinet** (and argonlefou's plugin): no in-game pause menu, no controller hints (keyboard/gamepad icons) in menus and on the death screen, no pause when the game window loses the focus. `Esc` quits the game.
-- **Settings tool** (`Hotd2Remake_ArcadeConfig.exe`), like argonlefou's `ArcadeMod_Config`: the game's own option menus are not available in the arcade mode, so the video, sound, language and life torches settings are set in the plugin's INI file and replace the ones of the save when the game starts. Each one can also be left to `(GAME SETTING)` (or its slider unchecked). Same layout as argonlefou's tool: game logo, *Save Config* button, *Arcade Menu* tab with the *Mod Options*, *Display Settings* tab with the HUD scale and brightness sliders, *Sound Option* tab with the volume sliders, and a *Controls* tab for the START/COIN/quit keys.
-- **Title screen sound** can be turned off (`ATTRACT_SOUND=0`), like argonlefou's plugin.
-- **START lamps and credits** for DemulShooter (`P1_LmpStart`, `P2_LmpStart` and `Credits` outputs, for MameHooker or QMamehook): a lamp blinks when its player can press START (start a game, join, continue, go on to the next screen), like argonlefou's plugin.
-- **Separate save file** in the game folder (`NVRAM\saveData.sav`), so that the arcade games don't change the home save. On first run, the home save is copied there to keep the settings and unlocked items.
-- Texts follow the game's language.
-
-Games are always started as a **Multiplayer** campaign (the only mode where a second player can join), in Competitive mode (separate scores, like the arcade).
-
-## Lightguns
-The plugin works with a mouse/keyboard, but it is made to be used with [DemulShooter](https://github.com/argonlefou/DemulShooter) and its House of the Dead 2 Remake plugin (`-target=windows -rom=hotd2r`), which handles the two guns, recoil, rumble and crosshairs. When both plugins are installed, the START buttons are handled by this one, and the START lamps and credits are sent to DemulShooter by its plugin (if it has these outputs).
+## Compatibility
+Tested with the STEAM version v1.1.1 of the game.  
+<br>
 
 ## Installation
-Unzip the zip of the latest [release](../../releases) in the game folder, where `THE HOUSE OF THE DEAD 2 Remake.exe` is located. Like argonlefou's plugin, it contains everything:
-- [BepInEx 5.4.21](https://github.com/BepInEx/BepInEx/releases/tag/v5.4.21) (`winhttp.dll`, `doorstop_config.ini` and the `BepInEx` folder), the same version as DemulShooter's Unity packages: it can be overwritten if it is already installed,
-- `Hotd2Remake_ArcadePlugin.dll` and `Hotd2Remake_ArcadePlugin.ini` in `BepInEx\plugins\`,
-- `Hotd2Remake_ArcadeConfig.exe`, to change the settings.
-
-To uninstall, remove `Hotd2Remake_ArcadePlugin.dll` from `BepInEx\plugins\` (keep BepInEx if DemulShooter's plugin is used, it needs it too). The home save file is never modified while the plugin is installed.
+Unzip the content of the latest [release](../../releases) to the base directory of the game, where the file `THE HOUSE OF THE DEAD 2 Remake.exe` is located.  
+BepInEx is included.  
+<br>
 
 ## Configuration
-`BepInEx\plugins\Hotd2Remake_ArcadePlugin.ini`, or `Hotd2Remake_ArcadeConfig.exe`:
+Run the `Hotd2Remake_ArcadeConfig.exe` tool to setup the game options as you want.  
+This config tool has the inner options of the game, plus some custom ones related to the arcade way of playing it.  
+They are saved in `BepInEx\plugins\Hotd2Remake_ArcadePlugin.ini` :
 
 | Setting | Default | |
 |---|---|---|
@@ -52,16 +32,16 @@ To uninstall, remove `Hotd2Remake_ArcadePlugin.dll` from `BepInEx\plugins\` (kee
 | `P1_START` / `P2_START` | `49` / `50` | Unity KeyCode values (`1` / `2`) |
 | `P1_COIN` / `P2_COIN` | `53` / `54` | Unity KeyCode values (`5` / `6`) |
 | `EXIT` | `27` | Quits the game (`Esc`), `0` = disabled |
-| `MODE` | `Original` | `Original`, `Arcade` or `Horde` (the game's own modes) |
+| `MODE` | `Original` | `Original`, `Arcade` or `Horde` |
 | `DIFFICULTY` | `Normal` | `VeryEasy` to `VeryHard` |
 | `SCORE_MODE` | `Classic` | `Classic` or `Modern` |
-| `DISABLE_MAIN_MENU` | `1` | `0` = any input other than START still opens the game's menu (settings...) |
+| `DISABLE_MAIN_MENU` | `1` | `0` = the game's menu can still be opened |
 | `SAVE_IN_GAME_FOLDER` | `1` | `0` = use the normal save file |
-| `HIDE_CURSOR` | `1` | `0` = show the mouse cursor (to use the game's menus with `DISABLE_MAIN_MENU=0`) |
-| `ARCADE_HUD` | `1` | `0` = the game's own HUD, with the score and the weapon name |
+| `HIDE_CURSOR` | `1` | `0` = show the mouse cursor |
+| `ARCADE_HUD` | `1` | `0` = the game's HUD, with the score and the weapon name |
 | `ATTRACT_SOUND` | `1` | `0` = no sound on the title screen |
 
-Game settings, replacing the ones of the save when the game starts. Empty = the game's own setting:
+Game settings, empty = the game's own setting :
 
 | Setting | Values |
 |---|---|
@@ -78,10 +58,17 @@ Game settings, replacing the ones of the save when the game starts. Empty = the 
 | `MASTER_VOLUME`, `MUSIC_VOLUME`, `EFFECTS_VOLUME`, `UI_VOLUME`, `DIALOGS_VOLUME`, `SHOT_VOLUME` | `0` to `100` |
 | `CLASSIC_MUSIC` | `1` = the original House of the Dead 2 music |
 
-## Building
-Visual Studio 2019 or later (or MSBuild 16+), .NET Framework 4.8. The solution has two projects: the plugin, and the settings tool (WinForms).
-The game DLLs needed to build are in `Hotd2Remake_ArcadePlugin\UnityLibs` as stripped reference copies (names and signatures only, no game code), see `About_these_dlls.txt` there to make them again after a game update.
+<br>
 
-GitHub Actions builds `main` once a day (`.github/workflows/build.yml`, Debug and Release), only if it has commits that were not built successfully yet; *Run workflow* in the Actions tab builds it straight away. Each build publishes a GitHub release (tag from the date, for example `v2026.10.22`, `.2` for a second one on the same day) with the commits since the previous release as notes, and a zip of the Release files laid out like the game folder (BepInEx 5.4.21, downloaded from its GitHub release, the plugin in `BepInEx\plugins\` and the settings tool). The same files are also in the `Hotd2Remake_ArcadePlugin` artifact of the run.
+## Play
+Use the following keyboard keys to play the game :  
+`1`	-	P1 Start  
+`2`	-	P2 Start  
+`5` / `6`	-	Coins  
+`Esc`	-	Exit  
+<br>
+Then use the mouse, or lightguns with [DemulShooter](https://github.com/argonlefou/DemulShooter).  
+<br>
 
-The Debug build adds test keys: `F5` / `F6` kill P1 / P2, `F7` finishes the current chapter, `F8` goes to the last chapter and `F9` gives 100000 points to P1, to check the continue, results, name entry and ending screens without playing the whole game.
+## Uninstall
+Simply remove the dll file located in the `BepInEx\plugins\` folder of your game to play the original game as before. Your original save is not modified by the plugin.
