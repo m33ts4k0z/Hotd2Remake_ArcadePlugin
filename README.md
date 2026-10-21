@@ -20,8 +20,8 @@ Work in progress, built in stages:
 - **Coins**: `5` / `6` add a credit (common credits pool, up to 99).
 - **Attract mode**: the title screen loops the game's videos, starting with the main one and the game logo, like argonlefou's plugin. It shows `INSERT COIN(S)` / `PRESS START` with the credits, or `FREEPLAY`, at the bottom center of the screen. START starts a new game straight away, skipping all menus. The other player can join with START at any time.
 - **Arcade presentation**: `LOADING...` instead of the gameplay tips on the loading screens, mouse cursor always hidden, no achievements (and no achievement popups during the game).
-- **Credits**: starting/joining costs `CREDITS_TO_START`, a continue costs `CREDITS_TO_CONTINUE`. They replace the game's own continue tokens. The death screen shows the credits and only offers to continue when there are enough.
-- **Continue countdown**, like argonlefou's plugin (it replaces the game's own 10 s timer):
+- **Credits**: starting/joining costs `CREDITS_TO_START`, a continue costs `CREDITS_TO_CONTINUE`. They replace the game's own continue tokens.
+- **Continue countdown**, like argonlefou's plugin (it replaces the game's own 10 s timer). The game's death screen boxes (continue and buy buttons, tokens, credits used) are hidden: only `CONTINUE ?` with the countdown, and a fading `PRESS START` under it (`INSERT COIN(S)` when there are not enough credits).
   - a player dies while the other one is still playing: `9` to `0` on his side of the screen, then `GAME OVER` for him. His side then shows `PRESS START` / `INSERT COIN(S)`, and joining again costs `CREDITS_TO_START`.
   - all players are dead: `9` to `0` in the middle of the screen, then game over and back to the title screen.
   - inserting a coin restarts the countdowns from `9`. They are paused during cutscenes.
