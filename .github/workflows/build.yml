@@ -80,9 +80,15 @@ jobs:
             if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           }
 
+      # BepInEx included like argonlefou's plugin : the zip is unzipped as it is in the game folder.
+      # Same version as DemulShooter's Unity packages
       - name: Package the Release files
         shell: pwsh
         run: |
+          Invoke-WebRequest https://github.com/BepInEx/BepInEx/releases/download/v5.4.21/BepInEx_x64_5.4.21.0.zip -OutFile "$env:RUNNER_TEMP/bepinex.zip"
+          Expand-Archive "$env:RUNNER_TEMP/bepinex.zip" package
+          $version = (Get-Item package/BepInEx/core/BepInEx.dll).VersionInfo.FileVersion
+          if ($version -ne '5.4.21.0') { Write-Output "::error::Unexpected BepInEx version $version"; exit 1 }
           New-Item -ItemType Directory package/BepInEx/plugins -Force | Out-Null
           Copy-Item Hotd2Remake_ArcadePlugin/bin/Release/Hotd2Remake_ArcadePlugin.dll, Hotd2Remake_ArcadePlugin/Hotd2Remake_ArcadePlugin.ini package/BepInEx/plugins
           Copy-Item Hotd2Remake_ArcadeConfig/bin/Release/Hotd2Remake_ArcadeConfig.exe, README.md package
@@ -114,8 +120,7 @@ jobs:
           $repoUrl = "$env:GITHUB_SERVER_URL/$env:GITHUB_REPOSITORY"
 
           $notes = @(
-            'Unzip in the game folder, next to `THE HOUSE OF THE DEAD 2 Remake.exe`.',
-            'Needs [BepInEx 5](https://github.com/BepInEx/BepInEx/releases) installed there first (the `BepInEx_win_x64_5.4.*.zip` file), see the README.',
+            'Unzip in the game folder, next to `THE HOUSE OF THE DEAD 2 Remake.exe`. [BepInEx 5.4.21](https://github.com/BepInEx/BepInEx/releases/tag/v5.4.21) is included, see the README.',
             '')
           foreach ($sha in git log --format=%H $range) {
             $subject = git log -1 --format=%s $sha

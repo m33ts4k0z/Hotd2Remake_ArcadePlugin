@@ -35,13 +35,12 @@ Games are always started as a **Multiplayer** campaign (the only mode where a se
 The plugin works with a mouse/keyboard, but it is made to be used with [DemulShooter](https://github.com/argonlefou/DemulShooter) and its House of the Dead 2 Remake plugin (`-target=windows -rom=hotd2r`), which handles the two guns, recoil, rumble and crosshairs. When both plugins are installed, the START buttons are handled by this one, and the START lamps and credits are sent to DemulShooter by its plugin (if it has these outputs).
 
 ## Installation
-1. Install [BepInEx 5](https://github.com/BepInEx/BepInEx/releases) in the game folder, next to `THE HOUSE OF THE DEAD 2 Remake.exe`: unzip its `BepInEx_win_x64_5.4.*.zip` file there (DemulShooter's HOTD2 Remake package already contains it). Start the game once to let BepInEx create its folders.
-2. Copy `Hotd2Remake_ArcadePlugin.dll` and `Hotd2Remake_ArcadePlugin.ini` to `BepInEx\plugins\`.
-3. Copy `Hotd2Remake_ArcadeConfig.exe` next to the game's exe, to change the settings.
+Unzip the zip of the latest [release](../../releases) in the game folder, where `THE HOUSE OF THE DEAD 2 Remake.exe` is located. Like argonlefou's plugin, it contains everything:
+- [BepInEx 5.4.21](https://github.com/BepInEx/BepInEx/releases/tag/v5.4.21) (`winhttp.dll`, `doorstop_config.ini` and the `BepInEx` folder), the same version as DemulShooter's Unity packages: it can be overwritten if it is already installed,
+- `Hotd2Remake_ArcadePlugin.dll` and `Hotd2Remake_ArcadePlugin.ini` in `BepInEx\plugins\`,
+- `Hotd2Remake_ArcadeConfig.exe`, to change the settings.
 
-The zip of each [release](../../releases) already has this layout: unzip it in the game folder for steps 2 and 3.
-
-To uninstall, remove these files. The home save file is never modified while the plugin is installed.
+To uninstall, remove `Hotd2Remake_ArcadePlugin.dll` from `BepInEx\plugins\` (keep BepInEx if DemulShooter's plugin is used, it needs it too). The home save file is never modified while the plugin is installed.
 
 ## Configuration
 `BepInEx\plugins\Hotd2Remake_ArcadePlugin.ini`, or `Hotd2Remake_ArcadeConfig.exe`:
@@ -83,6 +82,6 @@ Game settings, replacing the ones of the save when the game starts. Empty = the 
 Visual Studio 2019 or later (or MSBuild 16+), .NET Framework 4.8. The solution has two projects: the plugin, and the settings tool (WinForms).
 The game DLLs needed to build are in `Hotd2Remake_ArcadePlugin\UnityLibs` as stripped reference copies (names and signatures only, no game code), see `About_these_dlls.txt` there to make them again after a game update.
 
-GitHub Actions builds `main` once a day (`.github/workflows/build.yml`, Debug and Release), only if it has commits that were not built successfully yet; *Run workflow* in the Actions tab builds it straight away. Each build publishes a GitHub release (tag from the date, for example `v2026.10.22`, `.2` for a second one on the same day) with the commits since the previous release as notes, and a zip of the Release files laid out like the game folder (`BepInEx\plugins\` + the settings tool). The same files are also in the `Hotd2Remake_ArcadePlugin` artifact of the run.
+GitHub Actions builds `main` once a day (`.github/workflows/build.yml`, Debug and Release), only if it has commits that were not built successfully yet; *Run workflow* in the Actions tab builds it straight away. Each build publishes a GitHub release (tag from the date, for example `v2026.10.22`, `.2` for a second one on the same day) with the commits since the previous release as notes, and a zip of the Release files laid out like the game folder (BepInEx 5.4.21, downloaded from its GitHub release, the plugin in `BepInEx\plugins\` and the settings tool). The same files are also in the `Hotd2Remake_ArcadePlugin` artifact of the run.
 
 The Debug build adds test keys: `F5` / `F6` kill P1 / P2, `F7` finishes the current chapter, `F8` goes to the last chapter and `F9` gives 100000 points to P1, to check the continue, results, name entry and ending screens without playing the whole game.
