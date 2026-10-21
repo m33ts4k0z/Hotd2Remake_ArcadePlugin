@@ -90,6 +90,8 @@ Game settings, replacing the ones of the save when the game starts. Empty = the 
 
 ## Building
 Visual Studio 2019 or later (or MSBuild 16+), .NET Framework 4.8. The solution has two projects: the plugin, and the settings tool (WinForms).
-Copy the game DLLs listed in `Hotd2Remake_ArcadePlugin\UnityLibs\List_of_dll_to_copy_here.txt` to that folder first (they are not part of this repository).
+The game DLLs needed to build are in `Hotd2Remake_ArcadePlugin\UnityLibs` as stripped reference copies (names and signatures only, no game code), see `About_these_dlls.txt` there to make them again after a game update.
+
+Every push is built by GitHub Actions (`.github/workflows/build.yml`, Debug and Release). The Release files are in the `Hotd2Remake_ArcadePlugin` artifact of each run, laid out like the game folder (`BepInEx\plugins\` + the settings tool).
 
 The Debug build adds test keys: `F5` / `F6` kill P1 / P2, `F7` finishes the current chapter, `F8` goes to the last chapter and `F9` gives 100000 points to P1, to check the continue, results, name entry and ending screens without playing the whole game.

@@ -12,12 +12,6 @@
 *.userosscache
 *.sln.docstates
 
-#Licenced DLL for Unity plugin
-Assembly-CSharp.dll
-UnityEngine.dll
-UnityEngine.Networking.dll
-UnityEngine.UI.dll
-
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 
@@ -669,7 +663,5 @@ ASALocalRun/
 # NVidia Nsight GPU debugger configuration file
 *.nvuser
 
-#Game and Unity DLLs used as build references: copy them from the game (see UnityLibs/List_of_dll_to_copy_here.txt)
-**/UnityLibs/*.dll
-!**/UnityLibs/0Harmony.dll
-!**/UnityLibs/BepInEx.dll
+#Game and Unity DLLs in UnityLibs are stripped reference copies (no game code), see UnityLibs/About_these_dlls.txt
+#Never commit the game's real DLLs : the CI build fails if one of them is not a reference assembly

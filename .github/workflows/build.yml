@@ -1,0 +1,60 @@
+# Builds the plugin and the settings tool (Debug and Release) on every push,
+# the Release files are kept as an artifact laid out like the game folder
+name: Build
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+# A newer push on the same branch cancels the build still running
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Check that the game DLLs are stripped reference copies
+        shell: pwsh
+        run: |
+          $real = Get-ChildItem Hotd2Remake_ArcadePlugin/UnityLibs -Filter *.dll |
+            Where-Object { $_.Name -notin '0Harmony.dll', 'BepInEx.dll' } |
+            Where-Object { -not [Text.Encoding]::ASCII.GetString([IO.File]::ReadAllBytes($_.FullName)).Contains('ReferenceAssemblyAttribute') }
+          foreach ($dll in $real) {
+            Write-Output "::error file=Hotd2Remake_ArcadePlugin/UnityLibs/$($dll.Name)::$($dll.Name) is not a stripped reference assembly, the game's real DLLs must not be committed (see UnityLibs/About_these_dlls.txt)"
+          }
+          if ($real) { exit 1 }
+
+      # Same reference assemblies as a local build, whatever targeting packs the runner has
+      - name: Get the .NET Framework 4.8 reference assemblies
+        shell: pwsh
+        run: |
+          Invoke-WebRequest https://www.nuget.org/api/v2/package/Microsoft.NETFramework.ReferenceAssemblies.net48/1.0.3 -OutFile "$env:RUNNER_TEMP/net48.zip"
+          Expand-Archive "$env:RUNNER_TEMP/net48.zip" "$env:RUNNER_TEMP/net48"
+          "NET48_ROOT=$env:RUNNER_TEMP\net48\build" >> $env:GITHUB_ENV
+
+      - name: Build Debug and Release
+        shell: pwsh
+        run: |
+          $msbuild = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -requires Microsoft.Component.MSBuild -find 'MSBuild\**\Bin\MSBuild.exe' | Select-Object -First 1
+          foreach ($config in 'Debug', 'Release') {
+            & $msbuild Hotd2Remake_ArcadePlugin.sln /p:Configuration=$config "/p:TargetFrameworkRootPath=$env:NET48_ROOT" /m /nologo /v:minimal
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
+
+      - name: Package the Release files
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory package/BepInEx/plugins -Force | Out-Null
+          Copy-Item Hotd2Remake_ArcadePlugin/bin/Release/Hotd2Remake_ArcadePlugin.dll, Hotd2Remake_ArcadePlugin/Hotd2Remake_ArcadePlugin.ini package/BepInEx/plugins
+          Copy-Item Hotd2Remake_ArcadeConfig/bin/Release/Hotd2Remake_ArcadeConfig.exe, README.md package
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Hotd2Remake_ArcadePlugin
+          path: package/
+          if-no-files-found: error

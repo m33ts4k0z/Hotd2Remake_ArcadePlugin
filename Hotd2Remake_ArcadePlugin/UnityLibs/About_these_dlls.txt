@@ -1,0 +1,23 @@
+The game and Unity DLLs of this folder are stripped reference copies of the ones of the game
+(THE HOUSE OF THE DEAD 2 Remake_Data\Managed) : they only keep the names and signatures needed to build the plugin,
+without any game code, and cannot be loaded by the game. The built plugin is the same as with the original DLLs.
+
+ Assembly-CSharp.dll
+ Assembly-CSharp-firstpass.dll
+ Unity.InputSystem.dll
+ Unity.TextMeshPro.dll
+ UnityEngine.dll
+ UnityEngine.CoreModule.dll
+ UnityEngine.TextRenderingModule.dll
+ UnityEngine.UI.dll
+ UnityEngine.UIModule.dll
+ UnityEngine.VideoModule.dll
+
+0Harmony.dll and BepInEx.dll are the BepInEx 5 ones (open source).
+
+To make them again after a game update, with JetBrains Refasmer (https://github.com/JetBrains/Refasmer) :
+
+ dotnet tool install -g JetBrains.Refasmer.CliTool
+ refasmer --public --omit-non-api-members=true -O <this folder> "<game folder>\THE HOUSE OF THE DEAD 2 Remake_Data\Managed\Assembly-CSharp.dll" (and the other DLLs of the list)
+
+Never copy the game's real DLLs here : the GitHub build checks that all of them are reference assemblies.
