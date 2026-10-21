@@ -18,5 +18,18 @@ namespace Hotd2Remake_ArcadePlugin
                     CR_DeathScreenManager.UpdateDeathScrean();
             }
         }
+
+        /// <summary>
+        /// The game's own 10 seconds timer (only running when all players are dead) is replaced by the arcade countdown (see ContinueCountdown)
+        /// Still used for a game started from the game's own menus
+        /// </summary>
+        [HarmonyPatch(typeof(CR_DeathScreenManager), "restartTimer")]
+        class restartTimer
+        {
+            static bool Prefix()
+            {
+                return !Hotd2r_ArcadePlugin.IsArcadeGameRunning;
+            }
+        }
     }
 }

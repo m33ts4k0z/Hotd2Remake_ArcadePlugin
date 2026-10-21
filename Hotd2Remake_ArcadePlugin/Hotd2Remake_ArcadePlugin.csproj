@@ -88,6 +88,7 @@
   <ItemGroup>
     <Compile Include="ArcadeOverlay.cs" />
     <Compile Include="ConfManager.cs" />
+    <Compile Include="ContinueCountdown.cs" />
     <Compile Include="Hotd2r_ArcadePlugin.cs" />
     <Compile Include="INIFile.cs" />
     <Compile Include="LanguageStrings.cs" />
@@ -97,7 +98,9 @@
     <Compile Include="Patch\mCR_MainMenuMovieController.cs" />
     <Compile Include="Patch\mCR_Player.cs" />
     <Compile Include="Patch\mCR_PlayerDeathScreen.cs" />
+    <Compile Include="Patch\mCR_PlayerWeaponUI.cs" />
     <Compile Include="Patch\mCR_ReadyCheckPanel.cs" />
+    <Compile Include="Patch\mCR_ScoreDisplay.cs" />
     <Compile Include="Patch\mHD_SkipController.cs" />
     <Compile Include="Patch\mHD_SkipView.cs" />
     <Compile Include="Patch\mMP_AchievementsHandler.cs" />

@@ -46,6 +46,8 @@ namespace Hotd2Remake_ArcadePlugin
         //Set when a game is started from the title screen with START : only players who have paid are allowed in the game
         public static bool IsArcadeGameRunning = false;
         private static bool _IsLoadingNewGame = false;
+        //Reviving a player who is joining the game again : it is paid as a new player, not as a continue (see mCR_Player)
+        public static bool IsJoiningGame = false;
 
         //Title screen, set by mCR_MainMenuMovieController
         public static CR_MainMenuMovieController TitleScreen = null;
@@ -116,8 +118,21 @@ namespace Hotd2Remake_ArcadePlugin
                     MyLogger.LogMessage("Coin inserted (P" + (i + 1) + "), credits = " + CurrentCredits);
                     CR_AudioManager.PlayUIAudioSelection(gameObject);
                     CR_DeathScreenManager.RedrawDeathScreen();
+                    ContinueCountdown.Restart();
                 }
             }
+
+#if DEBUG
+            //Test keys : F5 / F6 are killing P1 / P2
+            if (Keyboard.current != null)
+            {
+                for (int i = 0; i < MAX_PLAYERS; i++)
+                {
+                    if ((i == 0 ? Keyboard.current.f5Key : Keyboard.current.f6Key).wasPressedThisFrame && CR_Player.Players[i] != null && CR_Player.Players[i].IsActivated)
+                        CR_Player.Players[i].Kill();
+                }
+            }
+#endif
 
             if (IsOnTitleScreen())
             {
@@ -129,6 +144,7 @@ namespace Hotd2Remake_ArcadePlugin
                     IsArcadeGameRunning = false;
                     for (int i = 0; i < MAX_PLAYERS; i++)
                         IsPlayerPlaying[i] = false;
+                    ContinueCountdown.Reset();
                 }
 
                 for (int i = 0; i < MAX_PLAYERS; i++)
@@ -148,14 +164,16 @@ namespace Hotd2Remake_ArcadePlugin
                 }
 
                 //The game is always activating P1 : removing him if only P2 has paid
+                //Same thing for a player who did not continue before the end of his countdown
                 if (IsArcadeGameRunning)
                 {
+                    ContinueCountdown.Update();
                     for (int i = 0; i < MAX_PLAYERS; i++)
                     {
                         CR_Player GamePlayer = CR_Player.Players[i];
                         if (GamePlayer != null && GamePlayer.IsActivated && !IsPlayerPlaying[i])
                         {
-                            MyLogger.LogMessage("Hotd2Remake_ArcadePlugin.Update() => " + ((PlayerType)i).ToString() + " has not paid, removing him from the game");
+                            MyLogger.LogMessage("Hotd2Remake_ArcadePlugin.Update() => " + ((PlayerType)i).ToString() + " is not playing, removing him from the game");
                             GamePlayer.Deactivate(false);
                         }
                     }
@@ -306,6 +324,14 @@ namespace Hotd2Remake_ArcadePlugin
                     CR_GameManager.SetMultiplayerActive(true);
                 else
                     GamePlayer.Activate();
+
+                //Out of the game after his continue countdown : he is still dead, but has paid to start again
+                if (GamePlayer.IsActivated && GamePlayer.HasDied)
+                {
+                    IsJoiningGame = true;
+                    GamePlayer.Revive();
+                    IsJoiningGame = false;
+                }
                 CR_ReadyCheckPanel.TryRefreshingMultiplayerStatus();
                 CR_AudioManager.PlayUIAudioAccept(gameObject);
             }

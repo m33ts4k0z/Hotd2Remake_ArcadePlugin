@@ -8,6 +8,7 @@ namespace Hotd2Remake_ArcadePlugin
     /// Our own texts on top of the game, during gameplay :
     /// - "PRESS START" / "INSERT COIN(S)" blinking on the side of a player who is not in the game
     /// - Credits at the bottom of the screen
+    /// - Continue countdowns (see ContinueCountdown) : in the middle of the dead player's half of the screen, or in the middle of the screen when everybody is dead
     /// Created once the game font is known (saved from the title screen)
     /// </summary>
     public class ArcadeOverlay : MonoBehaviour
@@ -16,10 +17,14 @@ namespace Hotd2Remake_ArcadePlugin
         private const float BLINK_VISIBLE_RATIO = 0.6f;
         private const float PLAYER_TEXT_HEIGHT = 30f;
         private const float PLAYER_TEXT_HEIGHT_DEATHSCREEN = 230f;
+        private const float COUNTDOWN_FONT_SIZE = 220f;
+        private const float GAME_OVER_FONT_SIZE = 100f;
 
         private Canvas _Canvas = null;
         private TextMeshProUGUI[] _PlayerTexts = new TextMeshProUGUI[Hotd2r_ArcadePlugin.MAX_PLAYERS];
         private TextMeshProUGUI _CreditsText;
+        private TextMeshProUGUI[] _CountdownTexts = new TextMeshProUGUI[Hotd2r_ArcadePlugin.MAX_PLAYERS];
+        private TextMeshProUGUI _GeneralCountdownText;
 
         private void Update()
         {
@@ -50,6 +55,22 @@ namespace Hotd2Remake_ArcadePlugin
                 _PlayerTexts[i].rectTransform.anchoredPosition = new Vector2(_PlayerTexts[i].rectTransform.anchoredPosition.x, TextHeight);
             }
             _CreditsText.text = Hotd2r_ArcadePlugin.GetCreditsString();
+
+            //Hidden with the death screens during cutscenes
+            bool ShowCountdowns = !CR_Cutscene.IsCutsceneActive && !CR_ChapterCompleteMenu.IsActive;
+            for (int i = 0; i < Hotd2r_ArcadePlugin.MAX_PLAYERS; i++)
+                setCountdownText(_CountdownTexts[i], ShowCountdowns ? ContinueCountdown.GetPlayerText(i) : string.Empty);
+            setCountdownText(_GeneralCountdownText, ShowCountdowns ? ContinueCountdown.GetGeneralText() : string.Empty);
+        }
+
+        private void setCountdownText(TextMeshProUGUI Text, string s)
+        {
+            Text.enabled = s.Length > 0;
+            if (s.Length == 0)
+                return;
+            Text.text = s;
+            //Big digit, smaller GAME OVER
+            Text.fontSize = s.Length > 1 ? GAME_OVER_FONT_SIZE : COUNTDOWN_FONT_SIZE;
         }
 
         private bool isAnyPlayerDead()
@@ -87,6 +108,9 @@ namespace Hotd2Remake_ArcadePlugin
             _PlayerTexts[0] = createText("P1_Text", new Vector2(0.0f, 0.0f), TextAlignmentOptions.BottomLeft, new Vector2(40f, 30f));
             _PlayerTexts[1] = createText("P2_Text", new Vector2(1.0f, 0.0f), TextAlignmentOptions.BottomRight, new Vector2(-40f, 30f));
             _CreditsText = createText("Credits_Text", new Vector2(0.5f, 0.0f), TextAlignmentOptions.Bottom, new Vector2(0f, 30f));
+            _CountdownTexts[0] = createText("P1_Countdown", new Vector2(0.25f, 0.5f), TextAlignmentOptions.Center, Vector2.zero);
+            _CountdownTexts[1] = createText("P2_Countdown", new Vector2(0.75f, 0.5f), TextAlignmentOptions.Center, Vector2.zero);
+            _GeneralCountdownText = createText("Countdown", new Vector2(0.5f, 0.5f), TextAlignmentOptions.Center, Vector2.zero);
             Hotd2r_ArcadePlugin.MyLogger.LogMessage("ArcadeOverlay.createCanvas() => Overlay created with font " + Hotd2r_ArcadePlugin.GameFont.name);
         }
 

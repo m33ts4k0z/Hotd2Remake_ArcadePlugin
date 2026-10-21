@@ -12,7 +12,7 @@ Work in progress, built in stages:
 |---|---|---|
 | 1 | Coins, credits, free play, START to play, join, continue and skip cutscenes. No in-game menu or controller hints, Esc quits | ✅ |
 | 2 | Attract mode: title video loop with the game logo, credits text at the bottom center. Arcade presentation: `LOADING...` instead of the loading screen tips, mouse cursor always hidden, no achievements (no popups during the game) | ✅ |
-| 3 | Arcade continue countdown (9 to 0 per player) tied to credits. Arcade HUD: no score and no weapon name during the game, like the original arcade | ⏳ |
+| 3 | Arcade continue countdown (9 to 0 per player, GAME OVER per player) tied to credits. Arcade HUD: no score and no weapon name during the game, like the original arcade | ✅ |
 | 4 | Name entry and high scores, rankings in the attract loop | ⏳ |
 | 5 | Settings tool like argonlefou's `ArcadeMod_Config` (graphics, sound, language, difficulty, starting and maximum lives...), start lamps and credits outputs for DemulShooter | ⏳ |
 
@@ -21,7 +21,11 @@ Work in progress, built in stages:
 - **Attract mode**: the title screen loops the game's videos, starting with the main one and the game logo, like argonlefou's plugin. It shows `INSERT COIN(S)` / `PRESS START` with the credits, or `FREEPLAY`, at the bottom center of the screen. START starts a new game straight away, skipping all menus. The other player can join with START at any time.
 - **Arcade presentation**: `LOADING...` instead of the gameplay tips on the loading screens, mouse cursor always hidden, no achievements (and no achievement popups during the game).
 - **Credits**: starting/joining costs `CREDITS_TO_START`, a continue costs `CREDITS_TO_CONTINUE`. They replace the game's own continue tokens. The death screen shows the credits and only offers to continue when there are enough.
-- **No credits left**: the game's own 10 s countdown runs, then it's game over and back to the title screen.
+- **Continue countdown**, like argonlefou's plugin (it replaces the game's own 10 s timer):
+  - a player dies while the other one is still playing: `9` to `0` on his side of the screen, then `GAME OVER` for him. His side then shows `PRESS START` / `INSERT COIN(S)`, and joining again costs `CREDITS_TO_START`.
+  - all players are dead: `9` to `0` in the middle of the screen, then game over and back to the title screen.
+  - inserting a coin restarts the countdowns from `9`. They are paused during cutscenes.
+- **Arcade HUD**: no score (and no points flying to it) and no weapon name during the game, like the original arcade. The life torches, the weapon icon and the ammo are still displayed.
 - **No READY screen**: like argonlefou's plugin, each chapter starts straight after its loading screen. Holding START skips cutscenes ("HOLD START TO SKIP!").
 - **Like an arcade cabinet** (and argonlefou's plugin): no in-game pause menu, no controller hints (keyboard/gamepad icons) in menus and on the death screen, no pause when the game window loses the focus. `Esc` quits the game.
 - Game settings (graphics, sound, language...) are not available in game. They are taken from the save file: set `DISABLE_MAIN_MENU=0` to reach the game's own Options menu from the title screen if needed. A settings tool like argonlefou's `ArcadeMod_Config` is planned for stage 5.
@@ -55,7 +59,10 @@ To uninstall, remove these two files. The home save file is never modified while
 | `DISABLE_MAIN_MENU` | `1` | `0` = any input other than START still opens the game's menu (settings...) |
 | `SAVE_IN_GAME_FOLDER` | `1` | `0` = use the normal save file |
 | `HIDE_CURSOR` | `1` | `0` = show the mouse cursor (to use the game's menus with `DISABLE_MAIN_MENU=0`) |
+| `ARCADE_HUD` | `1` | `0` = the game's own HUD, with the score and the weapon name |
 
 ## Building
 Visual Studio 2019 or later (or MSBuild 16+), .NET Framework 4.8.
 Copy the game DLLs listed in `Hotd2Remake_ArcadePlugin\UnityLibs\List_of_dll_to_copy_here.txt` to that folder first (they are not part of this repository).
+
+The Debug build adds two test keys: `F5` / `F6` kill P1 / P2, to check the continue screens without waiting for the enemies.

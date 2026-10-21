@@ -7,13 +7,14 @@ namespace Hotd2Remake_ArcadePlugin
         /// <summary>
         /// Continues are paid with credits instead of the game's own tokens (set as unlimited by the plugin)
         /// Whatever is calling it (our START button, the game's own input...)
+        /// A player joining again after his GAME OVER has already paid to start
         /// </summary>
         [HarmonyPatch(typeof(CR_Player), "Revive")]
         class Revive
         {
             static bool Prefix(CR_Player __instance, out bool __state)
             {
-                __state = __instance.HasDied;
+                __state = __instance.HasDied && !Hotd2r_ArcadePlugin.IsJoiningGame;
                 if (__state && !Hotd2r_ArcadePlugin.CanPay(Hotd2r_ArcadePlugin.Configurator.CreditsToContinue))
                 {
                     Hotd2r_ArcadePlugin.MyLogger.LogMessage("CR_Player.Revive() => " + __instance.Type.ToString() + " has not enough credits to continue");
