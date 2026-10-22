@@ -50,8 +50,10 @@ namespace Hotd2Remake_ArcadePlugin
             }
             bool AreAllPlayersDead = ActivePlayers > 0 && DeadPlayers == ActivePlayers;
 
-            //Unscaled time, in case the game is slowing down or pausing the time when everybody is dead
-            bool IsPaused = CR_Cutscene.IsCutsceneActive || CR_ChapterCompleteMenu.IsActive || CR_LevelLoader.IsLoadingScreenVisible || MP_GameManager.IsLevelCompleted || MP_GameManager.IsGameplayFinished;
+            //Unscaled time, in case the game is slowing down the time when everybody is dead
+            //Stopped while the game is paused (Steam overlay, controller popups...) : START is not possible then
+            bool IsPaused = CR_Cutscene.IsCutsceneActive || CR_ChapterCompleteMenu.IsActive || CR_LevelLoader.IsLoadingScreenVisible || MP_GameManager.IsLevelCompleted || MP_GameManager.IsGameplayFinished
+                || MP_GameManager.IsGamePaused;
             float Delta = IsPaused ? 0f : Time.unscaledDeltaTime;
 
             if (AreAllPlayersDead)

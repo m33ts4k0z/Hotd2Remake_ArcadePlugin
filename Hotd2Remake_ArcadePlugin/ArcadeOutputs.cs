@@ -65,10 +65,8 @@ namespace Hotd2Remake_ArcadePlugin
                 return false;
 
             CR_Player GamePlayer = CR_Player.Players[Player];
-            //Joining is only possible in a Multiplayer campaign
             if (GamePlayer == null || !GamePlayer.IsActivated)
-                return MP_SaveDataHandler.IsReady && MP_SaveDataHandler.LastPlayedCampaign != null && MP_SaveDataHandler.LastPlayedCampaign.IsMultiplayerCampaign
-                    && Hotd2r_ArcadePlugin.CanPay(Hotd2r_ArcadePlugin.Configurator.CreditsToStart);
+                return Hotd2r_ArcadePlugin.CanJoinGame() && Hotd2r_ArcadePlugin.CanPay(Hotd2r_ArcadePlugin.Configurator.CreditsToStart);
             if (GamePlayer.HasDied)
                 return Hotd2r_ArcadePlugin.CanPay(Hotd2r_ArcadePlugin.Configurator.CreditsToContinue);
             return false;

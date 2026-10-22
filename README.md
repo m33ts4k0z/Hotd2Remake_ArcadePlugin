@@ -32,10 +32,10 @@ They are saved in `BepInEx\plugins\Hotd2Remake_ArcadePlugin.ini` :
 |---|---|---|
 | `FREEPLAY` | `0` | `1` = no coins needed |
 | `CREDITS_TO_START` / `CREDITS_TO_CONTINUE` | `1` | 1 to 9 |
-| `P1_START` / `P2_START` | `49` / `50` | Unity KeyCode values (`1` / `2`) |
-| `P1_COIN` / `P2_COIN` | `53` / `54` | Unity KeyCode values (`5` / `6`) |
+| `P1_START` / `P2_START` | `49` / `50` | Unity KeyCode values of keyboard keys (`1` / `2`) |
+| `P1_COIN` / `P2_COIN` | `53` / `54` | Unity KeyCode values of keyboard keys (`5` / `6`) |
 | `EXIT` | `27` | Quits the game (`Esc`), `0` = disabled |
-| `MODE` | `Original` | `Original`, `Arcade` or `Horde` |
+| `MODE` | `Original` | `Original` or `Arcade` |
 | `DIFFICULTY` | `Normal` | `VeryEasy` to `VeryHard` |
 | `SCORE_MODE` | `Classic` | `Classic` or `Modern` |
 | `DISABLE_MAIN_MENU` | `1` | `0` = the game's menu can still be opened |

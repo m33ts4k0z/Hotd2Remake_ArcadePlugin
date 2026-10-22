@@ -23,16 +23,17 @@ namespace Hotd2Remake_ArcadePlugin
 
         public static Dictionary<StringName, String> ChineseDictionnary = new Dictionary<StringName, String>()
         {
-            { StringName.Credits, "学分"},
-            { StringName.Continue, "继续 ？"},
-            { StringName.EnterYourName, "输入你的名字"},
-            { StringName.Freeplay, "免费玩"},
-            { StringName.GameOver, "游戏结束"},      
-            { StringName.InsertCoins, "投币"},
-            { StringName.InsertMoreCoins, "插入更多硬币"},
-            { StringName.Loading, "加载中。 . ."},
-            { StringName.PressStart, "按开始"},
-            { StringName.PressStartToSkip, "按开始跳过"},
+            //Traditional Chinese, like the game (zh-HK)
+            { StringName.Credits, "學分"},
+            { StringName.Continue, "繼續 ？"},
+            { StringName.EnterYourName, "輸入你的名字"},
+            { StringName.Freeplay, "免費玩"},
+            { StringName.GameOver, "遊戲結束"},
+            { StringName.InsertCoins, "投幣"},
+            { StringName.InsertMoreCoins, "插入更多硬幣"},
+            { StringName.Loading, "載入中。 . ."},
+            { StringName.PressStart, "按開始"},
+            { StringName.PressStartToSkip, "按開始跳過"},
             { StringName.Ranking, "排行榜"},
             { StringName.Score, "得分"}
         };
@@ -133,20 +134,20 @@ namespace Hotd2Remake_ArcadePlugin
             { StringName.Score, "WYNIK"}
         };
 
-        public static Dictionary<StringName, String> RussianDictionnary = new Dictionary<StringName, String>()
+        public static Dictionary<StringName, String> PortugueseDictionnary = new Dictionary<StringName, String>()
         {
-            { StringName.Credits, "КРЕДИТЫ"},
-            { StringName.Continue, "ПРОДОЛЖИТЬ ?"},
-            { StringName.EnterYourName, "ВВЕДИТЕ СВОЁ ИМЯ"},
-            { StringName.Freeplay, "БЕСПЛАТНАЯ ИГРА"},
-            { StringName.GameOver, "ИГРА ЗАКОНЧЕНА"},      
-            { StringName.InsertCoins, "ВСТАВЬТЕ МОНЕТЫ"},
-            { StringName.InsertMoreCoins, "ВСТАВЬТЕ БОЛЬШЕ МОНЕТ(Ы)"},
-            { StringName.Loading, "ЗАГРУЗКА. . ."},
-            { StringName.PressStart, "НАЖМИТЕ СТАРТ"},
-            { StringName.PressStartToSkip, "НАЖМИТЕ СТАРТ, ЧТОБЫ ПРОПУСТИТЬ"},
-            { StringName.Ranking, "РЕЙТИНГ"},
-            { StringName.Score, "ОЧКИ"}
+            { StringName.Credits, "CRÉDITOS"},
+            { StringName.Continue, "CONTINUAR ?"},
+            { StringName.EnterYourName, "INTRODUZA O SEU NOME"},
+            { StringName.Freeplay, "JOGO LIVRE"},
+            { StringName.GameOver, "FIM DE JOGO"},
+            { StringName.InsertCoins, "INSIRA MOEDA(S)"},
+            { StringName.InsertMoreCoins, "INSIRA MAIS MOEDA(S)"},
+            { StringName.Loading, "A CARREGAR. . ."},
+            { StringName.PressStart, "PRIMA START"},
+            { StringName.PressStartToSkip, "PRIMA START PARA SALTAR"},
+            { StringName.Ranking, "CLASSIFICAÇÃO"},
+            { StringName.Score, "PONTUAÇÃO"}
         };
 
         public static Dictionary<StringName, String> SpainDictionnary = new Dictionary<StringName, String>()

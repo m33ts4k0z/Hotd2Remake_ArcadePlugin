@@ -393,7 +393,10 @@ namespace Hotd2Remake_ArcadePlugin
             _ScoreText = createText(_NameEntryPanel.transform, "Score", new Vector2(0f, 340f), 50f, TextAlignmentOptions.Center);
             _NameText = createText(_NameEntryPanel.transform, "Name", new Vector2(0f, 230f), 100f, TextAlignmentOptions.Center);
             _NameText.color = HIGHLIGHT_COLOR;
-            _TimerText = createText(_NameEntryPanel.transform, "Timer", new Vector2(820f, 430f), 80f, TextAlignmentOptions.Center);
+            //At the right edge of the screen, whatever its aspect ratio (4:3 and 5:4 screens are narrower than the 1920x1080 reference)
+            _TimerText = createText(_NameEntryPanel.transform, "Timer", Vector2.zero, 80f, TextAlignmentOptions.Center, 200f);
+            _TimerText.rectTransform.anchorMin = _TimerText.rectTransform.anchorMax = new Vector2(1f, 0.5f);
+            _TimerText.rectTransform.anchoredPosition = new Vector2(-140f, 430f);
             int Rows = (KEYS.Length + KEYS_PER_ROW - 1) / KEYS_PER_ROW;
             for (int i = 0; i < KEYS.Length; i++)
             {

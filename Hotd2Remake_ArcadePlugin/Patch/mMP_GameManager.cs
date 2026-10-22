@@ -17,6 +17,19 @@ namespace Hotd2Remake_ArcadePlugin
         }
 
         /// <summary>
+        /// The game is not running in background, Unity is also sending OnApplicationPause when the window is losing the focus :
+        /// the game would open its pause menu directly (without calling pause())
+        /// </summary>
+        [HarmonyPatch(typeof(MP_GameManager), "OnApplicationPause")]
+        class OnApplicationPause
+        {
+            static bool Prefix()
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
         /// Like argonlefou's House of the Dead Remake Arcade Plugin : no in-game pause menu (the pause input is ignored, Escape is quitting the game)
         /// The game is still allowed to pause itself without menu (all players down, tutorials...)
         /// </summary>

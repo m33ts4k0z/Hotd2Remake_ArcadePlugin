@@ -145,7 +145,7 @@ namespace Hotd2Remake_ArcadeConfig
             _Settings.Add(Setting.OnOff(TAB_ARCADE, "CREDITS", "FREEPLAY", "Freeplay", false));
             _Settings.Add(Setting.Range(TAB_ARCADE, "CREDITS", "CREDITS_TO_START", "Credits To Start", 1, 9, false, "1"));
             _Settings.Add(Setting.Range(TAB_ARCADE, "CREDITS", "CREDITS_TO_CONTINUE", "Credits To Continue", 1, 9, false, "1"));
-            _Settings.Add(Setting.List(TAB_ARCADE, "GAME", "MODE", "Game Mode", "Original", "ORIGINAL", "Original", "ARCADE", "Arcade", "HORDE", "Horde"));
+            _Settings.Add(Setting.List(TAB_ARCADE, "GAME", "MODE", "Game Mode", "Original", "ORIGINAL", "Original", "ARCADE", "Arcade"));
             _Settings.Add(Setting.List(TAB_ARCADE, "GAME", "DIFFICULTY", "Difficulty", "Normal",
                 "VERY EASY", "VeryEasy", "EASY", "Easy", "NORMAL", "Normal", "HARD", "Hard", "VERY HARD", "VeryHard"));
             _Settings.Add(Setting.List(TAB_ARCADE, "GAME", "SCORE_MODE", "Score Mode", "Classic", "CLASSIC", "Classic", "MODERN", "Modern"));
@@ -360,7 +360,7 @@ namespace Hotd2Remake_ArcadeConfig
             Help.ForeColor = SystemColors.GrayText;
             Help.Margin = new Padding(S(3), S(6), S(3), 0);
             if (TabName == TAB_CONTROLS)
-                Help.Text = "Keys are Unity KeyCode numbers : 49 = 1, 50 = 2, 53 = 5, 54 = 6, 27 = Esc.\r\nThe guns, their recoil and the crosshairs are handled by DemulShooter.";
+                Help.Text = "Keys are Unity KeyCode numbers, keyboard keys only : 49 = 1, 50 = 2, 53 = 5, 54 = 6, 27 = Esc.\r\nThe guns, their recoil and the crosshairs are handled by DemulShooter.";
             else if (HasOptionalSetting)
                 Help.Text = Setting.GAME_SETTING + " or unchecked slider : the game keeps its own setting.";
 

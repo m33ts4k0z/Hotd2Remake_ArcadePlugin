@@ -102,6 +102,12 @@ namespace Hotd2Remake_ArcadePlugin
             ExitKey = ReadInt(IniFile, "INPUT_KEYS", "EXIT", ExitKey, 0, 1000);
 
             Mode = ReadEnum(IniFile, "GAME", "MODE", Mode);
+            //Left over from the first game : HOTD2 Remake has no Horde mode (no menu, no leaderboard screen for it)
+            if (Mode == CampaignMode.Horde)
+            {
+                Hotd2r_ArcadePlugin.MyLogger.LogWarning("ConfManager.ReadConf() => No Horde mode in this game, using Original");
+                Mode = CampaignMode.Original;
+            }
             GameDifficulty = ReadEnum(IniFile, "GAME", "DIFFICULTY", GameDifficulty);
             GameScoreMode = ReadEnum(IniFile, "GAME", "SCORE_MODE", GameScoreMode);
             DisableMainMenu = ReadBool(IniFile, "GAME", "DISABLE_MAIN_MENU", DisableMainMenu);
@@ -157,7 +163,11 @@ namespace Hotd2Remake_ArcadePlugin
             if (Lives.HasValue)
                 Settings.Life = Lives.Value * 2f;
             if (GameLanguage.HasValue)
+            {
                 Settings.CurrentLanguage = GameLanguage.Value;
+                //Otherwise, with a new save file, the game is replacing it by the system language
+                Settings.WasLanguageSetFromDevice = true;
+            }
             if (ClassicMusic.HasValue)
                 Settings.UseClassicMusic = ClassicMusic.Value;
 
@@ -290,12 +300,15 @@ namespace Hotd2Remake_ArcadePlugin
             {
                 try
                 {
-                    return (T)Enum.Parse(typeof(T), s, true);
+                    //Enum.Parse is also accepting numbers, even out of the enum
+                    object Value = Enum.Parse(typeof(T), s, true);
+                    if (Enum.IsDefined(typeof(T), Value))
+                        return (T)Value;
                 }
                 catch
                 {
-                    Hotd2r_ArcadePlugin.MyLogger.LogWarning("ConfManager.ReadConf() => Invalid value for " + Key + " : " + s);
                 }
+                Hotd2r_ArcadePlugin.MyLogger.LogWarning("ConfManager.ReadConf() => Invalid value for " + Key + " : " + s);
             }
             return Default;
         }

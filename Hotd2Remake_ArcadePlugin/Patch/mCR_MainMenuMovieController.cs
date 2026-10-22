@@ -51,7 +51,7 @@ namespace Hotd2Remake_ArcadePlugin
             {
                 Hotd2r_ArcadePlugin.TitleScreen = __instance;
 
-                bool IsTitleScreen = !(___mainMenu.IsMainMenuOpen || ___mainMenu.IsMainMenuOpening) && ___simplePressAnyKey.IsVisible;
+                bool IsTitleScreen = Hotd2r_ArcadePlugin.IsOnTitleScreen();
                 updateLogo(IsTitleScreen && ___mainMenuVideoController != null && ___mainMenuVideoController.CurrentVideoClip == ___mainVideoClip ? ___mainMenuVideoController.CurrentVideoTime : -1.0, ___blackScreenImage);
 
                 if (!IsTitleScreen)

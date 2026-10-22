@@ -49,13 +49,14 @@ namespace Hotd2Remake_ArcadePlugin
         private static bool _IsLoadingNewGame = false;
         //Reviving a player who is joining the game again : it is paid as a new player, not as a continue (see mCR_Player)
         public static bool IsJoiningGame = false;
-        //Title screen without sound (ATTRACT_SOUND=0)
-        private static bool _IsAttractMuted = false;
+        //Title screen without sound (ATTRACT_SOUND=0), kept by mMP_SettingsHandler when the game is applying its sound settings again
+        public static bool IsAttractMuted { get; private set; }
 
         //Title screen, set by mCR_MainMenuMovieController
         public static CR_MainMenuMovieController TitleScreen = null;
         private static AccessTools.FieldRef<CR_MainMenuMovieController, CR_SimplePressAnyKeyDisplay> _TitlePressAnyKey = AccessTools.FieldRefAccess<CR_MainMenuMovieController, CR_SimplePressAnyKeyDisplay>("simplePressAnyKey");
         private static AccessTools.FieldRef<CR_MainMenuMovieController, CR_MainMenu> _TitleMainMenu = AccessTools.FieldRefAccess<CR_MainMenuMovieController, CR_MainMenu>("mainMenu");
+        private static AccessTools.FieldRef<CR_MainMenu, bool> _MainMenuHiddenByVideo = AccessTools.FieldRefAccess<CR_MainMenu, bool>("isHiddenByVideo");
 
         //Game's main font, saved from the title screen text to be used on our own texts
         public static TMP_FontAsset GameFont = null;
@@ -81,6 +82,12 @@ namespace Hotd2Remake_ArcadePlugin
                 CR_Data.UNLIMITED_CREDITS_ENABLED_FROM_CONTROL_PANEL[i] = true;
             }
             _ExitButton = new PluginControllerButton(Configurator.ExitKey);
+            for (int i = 0; i < MAX_PLAYERS; i++)
+            {
+                checkKeyCode("P" + (i + 1) + "_START", Configurator.StartKeys[i]);
+                checkKeyCode("P" + (i + 1) + "_COIN", Configurator.CoinKeys[i]);
+            }
+            checkKeyCode("EXIT", Configurator.ExitKey);
 
             NvramFolder = Paths.GameRootPath + "/NVRAM";
             if (Configurator.SaveInGameFolder)
@@ -101,11 +108,11 @@ namespace Hotd2Remake_ArcadePlugin
             ArcadeOutputs.Update();
 
             //Title screen without sound, like argonlefou's House of the Dead Remake Arcade Plugin
-            bool IsAttractMuted = !Configurator.AttractSound && MP_SaveDataHandler.Settings != null && IsOnTitleScreen();
-            if (IsAttractMuted != _IsAttractMuted && MP_SaveDataHandler.Settings != null)
+            bool AttractMuted = !Configurator.AttractSound && MP_SaveDataHandler.Settings != null && IsOnTitleScreen();
+            if (AttractMuted != IsAttractMuted && MP_SaveDataHandler.Settings != null)
             {
-                _IsAttractMuted = IsAttractMuted;
-                MP_SoundSettingsHandler.ToggleMuteMaster(IsAttractMuted || MP_SaveDataHandler.Settings.MuteMasterVolume);
+                IsAttractMuted = AttractMuted;
+                MP_SoundSettingsHandler.ToggleMuteMaster(AttractMuted || MP_SaveDataHandler.Settings.MuteMasterVolume);
             }
 
             for (int i = 0; i < MAX_PLAYERS; i++)
@@ -258,6 +265,10 @@ namespace Hotd2Remake_ArcadePlugin
             if (IsPlayerPlaying[(int)Player] || !MP_SaveDataHandler.IsReady)
                 return;
 
+            //The title screen is displayed before the end of the main menu loading : a new game can only be loaded once it is over
+            if (!_IsLoadingNewGame && !CR_LevelLoader.IsLevelFullyLoadedAndLoadingScreenIsInvisible)
+                return;
+
             if (!TryToPay(Configurator.CreditsToStart))
             {
                 CR_AudioManager.PlayUIAudioError(gameObject);
@@ -278,6 +289,8 @@ namespace Hotd2Remake_ArcadePlugin
                 else
                 {
                     IsPlayerPlaying[(int)Player] = false;
+                    if (!Configurator.Freeplay)
+                        CurrentCredits += Configurator.CreditsToStart;
                 }
             }
             else
@@ -320,8 +333,22 @@ namespace Hotd2Remake_ArcadePlugin
             MP_SaveDataHandler.SaveData.MultiplayerCampaign.SetMultiplayerActive(Player == PlayerType.Player2);
             MP_SaveDataHandler.LastPlayedCampaign.SetCurrentChapter(Chapter.Ch1_APrelude);
             MP_GameManager.LevelAborted();
-            CR_LevelLoader.LoadGameplayLevel(Chapter.Ch1_APrelude);
+            if (!CR_LevelLoader.LoadGameplayLevel(Chapter.Ch1_APrelude))
+            {
+                MyLogger.LogError("Hotd2Remake_ArcadePlugin.StartNewGame() => The first chapter could not be loaded");
+                return false;
+            }
             return true;
+        }
+
+        /// <summary>
+        /// Like the game, joining is only possible in a Multiplayer campaign, not after the game over,
+        /// and not while every player is dead : the game is stopped until a continue, a new player would stay in a frozen game
+        /// </summary>
+        public static bool CanJoinGame()
+        {
+            return MP_SaveDataHandler.IsReady && MP_SaveDataHandler.LastPlayedCampaign != null && MP_SaveDataHandler.LastPlayedCampaign.IsMultiplayerCampaign
+                && !MP_GameManager.IsGameplayFinished && CR_Player.GetAlivePlayerCount() > 0;
         }
 
         /// <summary>
@@ -345,7 +372,7 @@ namespace Hotd2Remake_ArcadePlugin
 
             if (!GamePlayer.IsActivated)
             {
-                if (!MP_SaveDataHandler.LastPlayedCampaign.IsMultiplayerCampaign || MP_GameManager.IsGameplayFinished || MP_GameManager.IsLevelCompleted || MP_ControllerDisconnectedPopup.IsVisible)
+                if (!CanJoinGame() || MP_GameManager.IsLevelCompleted || MP_ControllerDisconnectedPopup.IsVisible)
                     return;
 
                 if (!TryToPay(Configurator.CreditsToStart))
@@ -432,7 +459,8 @@ namespace Hotd2Remake_ArcadePlugin
             CR_MainMenu MainMenu = _TitleMainMenu(TitleScreen);
             if (PressAnyKey == null || !PressAnyKey.IsVisible)
                 return false;
-            return MainMenu == null || !(MainMenu.IsMainMenuOpen || MainMenu.IsMainMenuOpening);
+            //After some time without inputs, the game is hiding its opened main menu behind the videos without closing it (DISABLE_MAIN_MENU=0)
+            return MainMenu == null || !(MainMenu.IsMainMenuOpen || MainMenu.IsMainMenuOpening) || _MainMenuHiddenByVideo(MainMenu);
         }
 
         #endregion
@@ -487,8 +515,8 @@ namespace Hotd2Remake_ArcadePlugin
                 TextLangs = LanguageStrings.SpainDictionnary;
             else if (Code.StartsWith("pl"))
                 TextLangs = LanguageStrings.PolishDictionnary;
-            else if (Code.StartsWith("ru"))
-                TextLangs = LanguageStrings.RussianDictionnary;
+            else if (Code.StartsWith("pt"))
+                TextLangs = LanguageStrings.PortugueseDictionnary;
             else if (Code.StartsWith("ja"))
                 TextLangs = LanguageStrings.JapaneseDictionnary;
             else if (Code.StartsWith("zh"))
@@ -540,6 +568,15 @@ namespace Hotd2Remake_ArcadePlugin
             if (k == Key.None || Keyboard.current == null)
                 return false;
             return Keyboard.current[k].isPressed;
+        }
+
+        /// <summary>
+        /// The game is only using the Input System : only keyboard keys can be read (no mouse or joystick buttons)
+        /// </summary>
+        private static void checkKeyCode(string Name, int iKeyCode)
+        {
+            if (iKeyCode != 0 && KeyCodeToKey((KeyCode)iKeyCode) == Key.None)
+                MyLogger.LogWarning("Hotd2Remake_ArcadePlugin.checkKeyCode() => " + Name + " : " + iKeyCode + " is not a supported keyboard key, this button will not work");
         }
 
         private static Key KeyCodeToKey(KeyCode k)

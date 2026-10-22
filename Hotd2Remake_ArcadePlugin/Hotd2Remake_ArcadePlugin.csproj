@@ -117,6 +117,7 @@
     <Compile Include="Patch\mMP_PlayerInput.cs" />
     <Compile Include="Patch\mMP_SaveDataHandler.cs" />
     <Compile Include="Patch\mMP_SaveLoad.cs" />
+    <Compile Include="Patch\mMP_SettingsHandler.cs" />
     <Compile Include="PluginControllerButton.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

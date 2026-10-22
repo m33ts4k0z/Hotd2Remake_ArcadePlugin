@@ -47,8 +47,7 @@ namespace Hotd2Remake_ArcadePlugin
             if (!IsInGame)
                 return;
 
-            //Joining is only possible in a Multiplayer campaign, and not after the game over
-            bool CanJoin = MP_SaveDataHandler.IsReady && MP_SaveDataHandler.LastPlayedCampaign != null && MP_SaveDataHandler.LastPlayedCampaign.IsMultiplayerCampaign && !MP_GameManager.IsGameplayFinished;
+            bool CanJoin = Hotd2r_ArcadePlugin.CanJoinGame();
             float BlinkAlpha = getBlinkAlpha();
             for (int i = 0; i < Hotd2r_ArcadePlugin.MAX_PLAYERS; i++)
             {
