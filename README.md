@@ -1,3 +1,9 @@
+<img width="3840" height="2160" alt="20261021222916_1" src="https://github.com/user-attachments/assets/5aaebb39-dc57-4254-b6d3-19d97e8354ba" />
+<img width="3840" height="2160" alt="20261021223047_1" src="https://github.com/user-attachments/assets/51976a2f-21a5-4d26-b882-ceb4f3214956" />
+<img width="3840" height="2160" alt="20261021223056_1" src="https://github.com/user-attachments/assets/9bca996b-6b11-4f97-a65e-d10861b6500c" />
+<img width="3840" height="2160" alt="20261021223806_1" src="https://github.com/user-attachments/assets/6d218b25-14a4-4b6f-8ad7-d7138aaf327c" />
+
+
 # Hotd2Remake_ArcadePlugin
 <!-- Screenshots, like argonlefou's README: drag the 2 images in GitHub's editor to get their links, put them in src and remove this comment
 <p align="center">
